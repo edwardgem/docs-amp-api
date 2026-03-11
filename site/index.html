@@ -56,28 +56,11 @@
         margin: 8px 0 0;
         color: var(--ink-soft);
       }
-      #redoc-container {
+      #api-container {
         margin-top: 12px;
       }
-      /* Force full-width layout and hide ReDoc right panel chrome. */
-      #redoc-container .redoc-wrap {
-        max-width: none !important;
-      }
-      #redoc-container .redoc-wrap .right-panel,
-      #redoc-container .redoc-wrap [class*="right-panel"] {
-        display: none !important;
-      }
-      #redoc-container .redoc-wrap .api-content {
-        max-width: none !important;
-        width: 100% !important;
-        margin-right: 0 !important;
-      }
-      #redoc-container .redoc-wrap .middle-panel {
-        max-width: none !important;
-        width: 100% !important;
-      }
-      #redoc-container .redoc-wrap .menu-content {
-        border-right: 1px solid var(--line);
+      #swagger-ui .topbar {
+        display: none;
       }
       footer {
         border-top: 1px solid var(--line);
@@ -113,27 +96,26 @@
       <p>Logging, HITL, RLHF, and workitem APIs for external agent integrations.</p>
     </section>
 
-    <div id="redoc-container"></div>
+    <div id="api-container"></div>
 
     <footer>
       Generated from <code>openapi/v1.yaml</code> in docs-amp-api.
     </footer>
 
-    <script src="https://cdn.redoc.ly/redoc/latest/bundles/redoc.standalone.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/swagger-ui-dist@5/swagger-ui.css" />
+    <script src="https://unpkg.com/swagger-ui-dist@5/swagger-ui-bundle.js"></script>
     <script>
-      Redoc.init("./openapi/v1.yaml", {
-        expandResponses: "200,201",
-        hideHostname: false,
-        requiredPropsFirst: true,
-        sortPropsAlphabetically: false,
-        pathInMiddlePanel: true,
-        theme: {
-          rightPanel: {
-            width: "0px",
-            backgroundColor: "#f6f8fa",
-          },
-        },
-      }, document.getElementById("redoc-container"));
+      const mount = document.getElementById("api-container");
+      const ui = document.createElement("div");
+      ui.id = "swagger-ui";
+      mount.appendChild(ui);
+      SwaggerUIBundle({
+        url: "./openapi/v1.yaml",
+        dom_id: "#swagger-ui",
+        deepLinking: true,
+        displayRequestDuration: true,
+        defaultModelsExpandDepth: 1,
+      });
     </script>
   </body>
 </html>
