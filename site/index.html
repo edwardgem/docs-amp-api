@@ -59,16 +59,25 @@
       #redoc-container {
         margin-top: 12px;
       }
-      /* Use full width by removing ReDoc right panel chrome. */
-      #redoc-container .redoc-wrap .right-panel {
+      /* Force full-width layout and hide ReDoc right panel chrome. */
+      #redoc-container .redoc-wrap {
+        max-width: none !important;
+      }
+      #redoc-container .redoc-wrap .right-panel,
+      #redoc-container .redoc-wrap [class*="right-panel"] {
         display: none !important;
       }
       #redoc-container .redoc-wrap .api-content {
         max-width: none !important;
+        width: 100% !important;
+        margin-right: 0 !important;
       }
       #redoc-container .redoc-wrap .middle-panel {
         max-width: none !important;
         width: 100% !important;
+      }
+      #redoc-container .redoc-wrap .menu-content {
+        border-right: 1px solid var(--line);
       }
       footer {
         border-top: 1px solid var(--line);
@@ -118,6 +127,12 @@
         requiredPropsFirst: true,
         sortPropsAlphabetically: false,
         pathInMiddlePanel: true,
+        theme: {
+          rightPanel: {
+            width: "0px",
+            backgroundColor: "#f6f8fa",
+          },
+        },
       }, document.getElementById("redoc-container"));
     </script>
   </body>
