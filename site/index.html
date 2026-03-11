@@ -6,67 +6,40 @@
     <title>AMP API Docs</title>
     <link rel="stylesheet" href="https://unpkg.com/swagger-ui-dist@5/swagger-ui.css" />
     <style>
-      :root {
-        --bg: #ffffff;
-        --ink: #111827;
-        --ink-soft: #4b5563;
-        --line: #e5e7eb;
-      }
       body {
         margin: 0;
-        font-family: "Segoe UI", Arial, sans-serif;
-        color: var(--ink);
-        background: var(--bg);
+        font-family: Arial, sans-serif;
+        background: #ffffff;
       }
       header {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        padding: 12px 20px;
-        border-bottom: 1px solid var(--line);
+        padding: 10px 16px;
+        border-bottom: 1px solid #d1d5db;
         background: #fff;
-        position: sticky;
-        top: 0;
-        z-index: 10;
       }
       .brand {
-        font-weight: 600;
-      }
-      nav a {
-        color: var(--ink-soft);
-        text-decoration: none;
-        margin-left: 16px;
+        font-weight: 700;
         font-size: 14px;
       }
+      nav a {
+        color: #374151;
+        text-decoration: none;
+        margin-left: 12px;
+        font-size: 13px;
+      }
       nav a:hover {
-        color: var(--ink);
-      }
-      .hero {
-        padding: 16px 20px 6px;
-      }
-      .hero h1 {
-        margin: 0;
-        font-size: 22px;
-        font-weight: 600;
-      }
-      .hero p {
-        margin: 6px 0 0;
-        color: var(--ink-soft);
+        color: #111827;
       }
       #api-container {
-        margin-top: 8px;
+        margin: 0;
       }
       #swagger-ui .topbar {
         display: none;
       }
-      footer {
-        border-top: 1px solid var(--line);
-        color: var(--ink-soft);
-        font-size: 12px;
-        padding: 14px 20px;
-      }
-      #swagger-ui .information-container.wrapper {
-        padding-top: 0;
+      #swagger-ui {
+        max-width: 100%;
       }
     </style>
   </head>
@@ -80,16 +53,7 @@
       </nav>
     </header>
 
-    <section class="hero">
-      <h1>AMP API Reference</h1>
-      <p>Logging, HITL, RLHF, and workitem APIs for external agent integrations.</p>
-    </section>
-
     <div id="api-container"></div>
-
-    <footer>
-      Generated from <code>openapi/v1.yaml</code> in docs-amp-api.
-    </footer>
 
     <script src="https://unpkg.com/swagger-ui-dist@5/swagger-ui-bundle.js"></script>
     <script>
@@ -101,8 +65,9 @@
         url: "./openapi/v1.yaml",
         dom_id: "#swagger-ui",
         deepLinking: true,
-        displayRequestDuration: true,
-        defaultModelsExpandDepth: 1,
+        displayRequestDuration: false,
+        defaultModelsExpandDepth: 0,
+        docExpansion: "list",
       });
     </script>
   </body>
