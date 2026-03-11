@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AMP API Docs</title>
+    <style>
+      :root {
+        --bg: #f6f8fa;
+        --ink: #0f172a;
+        --ink-soft: #475569;
+        --brand: #0ea5a5;
+        --line: #dbe3ea;
+      }
+      body {
+        margin: 0;
+        font-family: "Avenir Next", "Segoe UI", sans-serif;
+        color: var(--ink);
+        background: radial-gradient(circle at 5% 0%, #e0f2fe 0%, var(--bg) 45%);
+      }
+      header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 14px 20px;
+        border-bottom: 1px solid var(--line);
+        background: rgba(255, 255, 255, 0.9);
+        position: sticky;
+        top: 0;
+        z-index: 10;
+      }
+      .brand {
+        font-weight: 700;
+        letter-spacing: 0.3px;
+      }
+      .brand .dot {
+        color: var(--brand);
+      }
+      nav a {
+        color: var(--ink-soft);
+        text-decoration: none;
+        margin-left: 16px;
+        font-size: 14px;
+      }
+      nav a:hover {
+        color: var(--ink);
+      }
+      .hero {
+        padding: 24px 20px 10px;
+      }
+      .hero h1 {
+        margin: 0;
+        font-size: 28px;
+      }
+      .hero p {
+        margin: 8px 0 0;
+        color: var(--ink-soft);
+      }
+      #redoc-container {
+        margin-top: 12px;
+      }
+      footer {
+        border-top: 1px solid var(--line);
+        color: var(--ink-soft);
+        font-size: 12px;
+        padding: 14px 20px;
+      }
+      .chip {
+        display: inline-block;
+        font-size: 12px;
+        color: #0b4b4b;
+        background: #d5f5f5;
+        border: 1px solid #a7e7e7;
+        border-radius: 999px;
+        padding: 2px 10px;
+        margin-left: 8px;
+        vertical-align: middle;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <div class="brand">AMP<span class="dot">.</span>API Docs <span class="chip">v1</span></div>
+      <nav>
+        <a href="./index.html">API Reference</a>
+        <a href="./quickstart.md">Quickstart</a>
+        <a href="./changelog.md">Changelog</a>
+      </nav>
+    </header>
+
+    <section class="hero">
+      <h1>AMP API Reference</h1>
+      <p>Logging, HITL, RLHF, and workitem APIs for external agent integrations.</p>
+    </section>
+
+    <div id="redoc-container"></div>
+
+    <footer>
+      Generated from <code>openapi/v1.yaml</code> in docs-amp-api.
+    </footer>
+
+    <script src="https://cdn.redoc.ly/redoc/latest/bundles/redoc.standalone.js"></script>
+    <script>
+      Redoc.init("../openapi/v1.yaml", {
+        expandResponses: "200,201",
+        hideHostname: false,
+        requiredPropsFirst: true,
+        sortPropsAlphabetically: false,
+        pathInMiddlePanel: true,
+      }, document.getElementById("redoc-container"));
+    </script>
+  </body>
+</html>
