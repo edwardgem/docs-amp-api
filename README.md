@@ -38,7 +38,7 @@ Notes:
 ## Source of truth
 
 Spec is generated in:
-- `/Users/edwardc/Projects/docs-backend-docgen/output/openapi.draft.yaml`
+- `/Users/edwardc/Projects/docs-backend-docgen/output/openapi.public.yaml`
 
 This repo publishes the curated customer-facing copy at:
 - `openapi/v1.yaml`

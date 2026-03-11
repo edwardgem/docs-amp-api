@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-SRC_DEFAULT="/Users/edwardc/Projects/docs-backend-docgen/output/openapi.draft.yaml"
+SRC_DEFAULT="/Users/edwardc/Projects/docs-backend-docgen/output/openapi.public.yaml"
 SRC="${1:-$SRC_DEFAULT}"
 DST="/Users/edwardc/Projects/docs-amp-api/openapi/v1.yaml"
 

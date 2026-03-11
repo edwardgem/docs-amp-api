@@ -1,4 +1,4 @@
-OPENAPI_SRC ?= /Users/edwardc/Projects/docs-backend-docgen/output/openapi.draft.yaml
+OPENAPI_SRC ?= /Users/edwardc/Projects/docs-backend-docgen/output/openapi.public.yaml
 
 .PHONY: sync build check
 
