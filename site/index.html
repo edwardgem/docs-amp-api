@@ -4,37 +4,33 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>AMP API Docs</title>
+    <link rel="stylesheet" href="https://unpkg.com/swagger-ui-dist@5/swagger-ui.css" />
     <style>
       :root {
-        --bg: #f6f8fa;
-        --ink: #0f172a;
-        --ink-soft: #475569;
-        --brand: #0ea5a5;
-        --line: #dbe3ea;
+        --bg: #ffffff;
+        --ink: #111827;
+        --ink-soft: #4b5563;
+        --line: #e5e7eb;
       }
       body {
         margin: 0;
-        font-family: "Avenir Next", "Segoe UI", sans-serif;
+        font-family: "Segoe UI", Arial, sans-serif;
         color: var(--ink);
-        background: radial-gradient(circle at 5% 0%, #e0f2fe 0%, var(--bg) 45%);
+        background: var(--bg);
       }
       header {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        padding: 14px 20px;
+        padding: 12px 20px;
         border-bottom: 1px solid var(--line);
-        background: rgba(255, 255, 255, 0.9);
+        background: #fff;
         position: sticky;
         top: 0;
         z-index: 10;
       }
       .brand {
-        font-weight: 700;
-        letter-spacing: 0.3px;
-      }
-      .brand .dot {
-        color: var(--brand);
+        font-weight: 600;
       }
       nav a {
         color: var(--ink-soft);
@@ -46,18 +42,19 @@
         color: var(--ink);
       }
       .hero {
-        padding: 24px 20px 10px;
+        padding: 16px 20px 6px;
       }
       .hero h1 {
         margin: 0;
-        font-size: 28px;
+        font-size: 22px;
+        font-weight: 600;
       }
       .hero p {
-        margin: 8px 0 0;
+        margin: 6px 0 0;
         color: var(--ink-soft);
       }
       #api-container {
-        margin-top: 12px;
+        margin-top: 8px;
       }
       #swagger-ui .topbar {
         display: none;
@@ -68,22 +65,14 @@
         font-size: 12px;
         padding: 14px 20px;
       }
-      .chip {
-        display: inline-block;
-        font-size: 12px;
-        color: #0b4b4b;
-        background: #d5f5f5;
-        border: 1px solid #a7e7e7;
-        border-radius: 999px;
-        padding: 2px 10px;
-        margin-left: 8px;
-        vertical-align: middle;
+      #swagger-ui .information-container.wrapper {
+        padding-top: 0;
       }
     </style>
   </head>
   <body>
     <header>
-      <div class="brand">AMP<span class="dot">.</span>API Docs <span class="chip">v1</span></div>
+      <div class="brand">AMP API Docs (v1)</div>
       <nav>
         <a href="./index.html">API Reference</a>
         <a href="./quickstart.md">Quickstart</a>
@@ -102,7 +91,6 @@
       Generated from <code>openapi/v1.yaml</code> in docs-amp-api.
     </footer>
 
-    <link rel="stylesheet" href="https://unpkg.com/swagger-ui-dist@5/swagger-ui.css" />
     <script src="https://unpkg.com/swagger-ui-dist@5/swagger-ui-bundle.js"></script>
     <script>
       const mount = document.getElementById("api-container");
