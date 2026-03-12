@@ -12,6 +12,9 @@ servers:
     description: Local development
 tags:
   -
+    name: Admin / Ops
+    description: Administrative and operator APIs.
+  -
     name: Agent Lifecycle
     description: "Agent registration, launch, polling, and lifecycle operations."
   -
@@ -21,18 +24,63 @@ tags:
     name: Auth / Sessions
     description: Authentication and session-related APIs.
   -
+    name: Dashboard
+    description: Dashboard-facing APIs (generally non-customer integration surface).
+  -
+    name: Frontend Shell
+    description: Frontend SPA shell routes.
+  -
     name: HITL
     description: Human-in-the-loop routing and decision APIs.
+  -
+    name: Internal
+    description: Internal service-to-service APIs.
+  -
+    name: LLM Utilities
+    description: Prompt classification and utility APIs.
   -
     name: Log Proxy
     description: Agent log ingestion and proxy APIs.
   -
+    name: Ops Utilities
+    description: Operational refresh/streaming utility APIs.
+  -
+    name: Presence
+    description: User presence and heartbeat APIs.
+  -
     name: RLHF
     description: "RLHF policy, runtime, and decision management APIs."
   -
+    name: User Profile
+    description: End-user profile management APIs.
+  -
     name: Workitems
     description: Work item queue and status APIs for human review.
+  -
+    name: Worktray
+    description: Worktray-facing interactive APIs.
 paths:
+  /:
+    get:
+      summary: Spa Index
+      description: "Serve static files from frontend/dist; fallback to index.html for SPA routes.\n\nIf the build output is missing, return a friendly message suggesting to\nrun `npm run build` in the frontend directory."
+      operationId: get_spa_index_
+      tags:
+        - Frontend Shell
+      responses:
+        200:
+          description: Success
+        400:
+          description: Bad request
+        401:
+          description: Unauthorized
+        500:
+          description: Server error
+      x-source:
+        file: /Users/edwardc/Projects/amp-backend/app.py
+        function: spa_index
+        line: 3104
+      x-audience: internal
   /api/abort:
     post:
       summary: Abort Agent
@@ -54,6 +102,180 @@ paths:
         function: abort_agent
         line: 6675
       x-audience: public
+      security:
+        -
+          ApiKeyAuth:
+            []
+        -
+          SessionToken:
+            []
+  /api/admin/organizations:
+    get:
+      summary: Admin List Organizations
+      description: List all organizations for dropdown use. Admins see all.
+      operationId: get_admin_list_organizations_api_admin_organizations
+      tags:
+        - Admin / Ops
+      responses:
+        200:
+          description: Success
+        400:
+          description: Bad request
+        401:
+          description: Unauthorized
+        500:
+          description: Server error
+      x-source:
+        file: /Users/edwardc/Projects/amp-backend/app.py
+        function: admin_list_organizations
+        line: 3581
+      x-audience: partner
+      security:
+        -
+          ApiKeyAuth:
+            []
+        -
+          SessionToken:
+            []
+  /api/admin/presence:
+    get:
+      summary: Admin Presence Overview
+      description: Return a summary of active/idle users on AMP for admin roles.
+      operationId: get_admin_presence_overview_api_admin_presence
+      tags:
+        - Admin / Ops
+      responses:
+        200:
+          description: Success
+        400:
+          description: Bad request
+        401:
+          description: Unauthorized
+        500:
+          description: Server error
+      x-source:
+        file: /Users/edwardc/Projects/amp-backend/app.py
+        function: admin_presence_overview
+        line: 3223
+      x-audience: partner
+      security:
+        -
+          ApiKeyAuth:
+            []
+        -
+          SessionToken:
+            []
+  /api/admin/presence/chat:
+    post:
+      summary: Admin Presence Chat
+      description: LLM-powered assistant for presence dashboard questions.
+      operationId: post_admin_presence_chat_api_admin_presence_chat
+      tags:
+        - Admin / Ops
+      responses:
+        200:
+          description: Success
+        400:
+          description: Bad request
+        401:
+          description: Unauthorized
+        500:
+          description: Server error
+      x-source:
+        file: /Users/edwardc/Projects/amp-backend/app.py
+        function: admin_presence_chat
+        line: 3247
+      x-audience: partner
+      security:
+        -
+          ApiKeyAuth:
+            []
+        -
+          SessionToken:
+            []
+  /api/admin/users:
+    post:
+      summary: Admin Create User
+      description: Provision a new user (email + org) without a password.
+      operationId: post_admin_create_user_api_admin_users
+      tags:
+        - Admin / Ops
+      responses:
+        200:
+          description: Success
+        400:
+          description: Bad request
+        401:
+          description: Unauthorized
+        500:
+          description: Server error
+      x-source:
+        file: /Users/edwardc/Projects/amp-backend/app.py
+        function: admin_create_user
+        line: 3345
+      x-audience: partner
+      security:
+        -
+          ApiKeyAuth:
+            []
+        -
+          SessionToken:
+            []
+    get:
+      summary: Admin List Users
+      description: List users. Superadmin sees all; admin sees users in their own company.
+      operationId: get_admin_list_users_api_admin_users
+      tags:
+        - Admin / Ops
+      responses:
+        200:
+          description: Success
+        400:
+          description: Bad request
+        401:
+          description: Unauthorized
+        500:
+          description: Server error
+      x-source:
+        file: /Users/edwardc/Projects/amp-backend/app.py
+        function: admin_list_users
+        line: 3604
+      x-audience: partner
+      security:
+        -
+          ApiKeyAuth:
+            []
+        -
+          SessionToken:
+            []
+  /api/admin/users/{target_username}:
+    put:
+      summary: Admin Update User
+      description: "Superadmin edits any user's profile and role. Admin edits users in their company."
+      operationId: put_admin_update_user_api_admin_users_target_username
+      tags:
+        - Admin / Ops
+      responses:
+        200:
+          description: Success
+        400:
+          description: Bad request
+        401:
+          description: Unauthorized
+        500:
+          description: Server error
+      x-source:
+        file: /Users/edwardc/Projects/amp-backend/app.py
+        function: admin_update_user
+        line: 3635
+      x-audience: partner
+      parameters:
+        -
+          name: target_username
+          in: path
+          required: true
+          schema:
+            type: string
       security:
         -
           ApiKeyAuth:
@@ -1786,6 +2008,200 @@ paths:
         -
           SessionToken:
             []
+  /api/amp/chat:
+    post:
+      summary: Amp Chat Summary
+      description: Generate a conversational response about AMP activity using authorized records.
+      operationId: post_amp_chat_summary_api_amp_chat
+      tags:
+        - Dashboard
+      responses:
+        200:
+          description: Success
+        400:
+          description: Bad request
+        401:
+          description: Unauthorized
+        500:
+          description: Server error
+      x-source:
+        file: /Users/edwardc/Projects/amp-backend/app.py
+        function: amp_chat_summary
+        line: 4349
+      x-audience: partner
+      security:
+        -
+          ApiKeyAuth:
+            []
+        -
+          SessionToken:
+            []
+  /api/amp/chat/history:
+    delete:
+      summary: Amp Chat History
+      description: Persist and retrieve AMP chat transcripts per user.
+      operationId: delete_amp_chat_history_api_amp_chat_history
+      tags:
+        - Dashboard
+      responses:
+        200:
+          description: Success
+        400:
+          description: Bad request
+        401:
+          description: Unauthorized
+        500:
+          description: Server error
+      x-source:
+        file: /Users/edwardc/Projects/amp-backend/app.py
+        function: amp_chat_history
+        line: 4321
+      x-audience: partner
+      security:
+        -
+          ApiKeyAuth:
+            []
+        -
+          SessionToken:
+            []
+    get:
+      summary: Amp Chat History
+      description: Persist and retrieve AMP chat transcripts per user.
+      operationId: get_amp_chat_history_api_amp_chat_history
+      tags:
+        - Dashboard
+      responses:
+        200:
+          description: Success
+        400:
+          description: Bad request
+        401:
+          description: Unauthorized
+        500:
+          description: Server error
+      x-source:
+        file: /Users/edwardc/Projects/amp-backend/app.py
+        function: amp_chat_history
+        line: 4321
+      x-audience: partner
+      security:
+        -
+          ApiKeyAuth:
+            []
+        -
+          SessionToken:
+            []
+    post:
+      summary: Amp Chat History
+      description: Persist and retrieve AMP chat transcripts per user.
+      operationId: post_amp_chat_history_api_amp_chat_history
+      tags:
+        - Dashboard
+      responses:
+        200:
+          description: Success
+        400:
+          description: Bad request
+        401:
+          description: Unauthorized
+        500:
+          description: Server error
+      x-source:
+        file: /Users/edwardc/Projects/amp-backend/app.py
+        function: amp_chat_history
+        line: 4321
+      x-audience: partner
+      security:
+        -
+          ApiKeyAuth:
+            []
+        -
+          SessionToken:
+            []
+  /api/amp/refresh-events:
+    get:
+      summary: Refresh Events
+      description: SSE endpoint for frontend connections to receive real-time refresh signals.
+      operationId: get_refresh_events_api_amp_refresh_events
+      tags:
+        - Ops Utilities
+      responses:
+        200:
+          description: Success
+        400:
+          description: Bad request
+        401:
+          description: Unauthorized
+        500:
+          description: Server error
+      x-source:
+        file: /Users/edwardc/Projects/amp-backend/app.py
+        function: refresh_events
+        line: 5179
+      x-audience: partner
+      security:
+        -
+          ApiKeyAuth:
+            []
+        -
+          SessionToken:
+            []
+  /api/amp/sse-status:
+    get:
+      summary: Sse Status
+      description: Debug endpoint to check current SSE connections.
+      operationId: get_sse_status_api_amp_sse_status
+      tags:
+        - Ops Utilities
+      responses:
+        200:
+          description: Success
+        400:
+          description: Bad request
+        401:
+          description: Unauthorized
+        500:
+          description: Server error
+      x-source:
+        file: /Users/edwardc/Projects/amp-backend/app.py
+        function: sse_status
+        line: 5296
+      x-audience: partner
+      security:
+        -
+          ApiKeyAuth:
+            []
+        -
+          SessionToken:
+            []
+  /api/amp/trigger-refresh:
+    post:
+      summary: Trigger Refresh
+      description: Trigger endpoint for logger service to call when new records are written.
+      operationId: post_trigger_refresh_api_amp_trigger_refresh
+      tags:
+        - Ops Utilities
+      responses:
+        200:
+          description: Success
+        400:
+          description: Bad request
+        401:
+          description: Unauthorized
+        500:
+          description: Server error
+      x-source:
+        file: /Users/edwardc/Projects/amp-backend/app.py
+        function: trigger_refresh
+        line: 5286
+      x-audience: partner
+      security:
+        -
+          ApiKeyAuth:
+            []
+        -
+          SessionToken:
+            []
   /api/analytics/agent_events:
     get:
       summary: Analytics Agent Events
@@ -1982,6 +2398,34 @@ paths:
         -
           SessionToken:
             []
+  /api/classify_intent:
+    post:
+      summary: Classify Intent Api
+      description: Proxy to llm_client.classify_intent for chat command understanding.
+      operationId: post_classify_intent_api_api_classify_intent
+      tags:
+        - LLM Utilities
+      responses:
+        200:
+          description: Success
+        400:
+          description: Bad request
+        401:
+          description: Unauthorized
+        500:
+          description: Server error
+      x-source:
+        file: /Users/edwardc/Projects/amp-backend/app.py
+        function: classify_intent_api
+        line: 11737
+      x-audience: partner
+      security:
+        -
+          ApiKeyAuth:
+            []
+        -
+          SessionToken:
+            []
   /api/config:
     get:
       summary: Get Config
@@ -2010,11 +2454,101 @@ paths:
         -
           SessionToken:
             []
+  /api/dashboard/chat:
+    post:
+      summary: Dashboard Chat
+      description: LLM chat endpoint for the AMP dashboard.
+      operationId: post_dashboard_chat_api_dashboard_chat
+      tags:
+        - Dashboard
+      responses:
+        200:
+          description: Success
+        400:
+          description: Bad request
+        401:
+          description: Unauthorized
+        500:
+          description: Server error
+      x-source:
+        file: /Users/edwardc/Projects/amp-backend/app.py
+        function: dashboard_chat
+        line: 6914
+      x-audience: partner
+      security:
+        -
+          ApiKeyAuth:
+            []
+        -
+          SessionToken:
+            []
+  /api/dashboard/chat/history:
+    get:
+      summary: Dashboard Chat History
+      description: ''
+      operationId: get_dashboard_chat_history_api_dashboard_chat_history
+      tags:
+        - Dashboard
+      responses:
+        200:
+          description: Success
+        400:
+          description: Bad request
+        401:
+          description: Unauthorized
+        500:
+          description: Server error
+      x-source:
+        file: /Users/edwardc/Projects/amp-backend/app.py
+        function: dashboard_chat_history
+        line: 7076
+      x-audience: partner
+      security:
+        -
+          ApiKeyAuth:
+            []
+        -
+          SessionToken:
+            []
+  /api/dashboard/demo-data/{filename}:
+    get:
+      summary: Dashboard Demo Data
+      description: Serve dashboard demo CSVs from the backend.
+      operationId: get_dashboard_demo_data_api_dashboard_demo_data_filename
+      tags:
+        - Dashboard
+      responses:
+        200:
+          description: Success
+        400:
+          description: Bad request
+        401:
+          description: Unauthorized
+        500:
+          description: Server error
+      x-source:
+        file: /Users/edwardc/Projects/amp-backend/app.py
+        function: dashboard_demo_data
+        line: 7417
+      x-audience: partner
+      parameters:
+        -
+          name: filename
+          in: path
+          required: true
+          schema:
+            type: string
+      security:
+        -
+          ApiKeyAuth:
+            []
+        -
+          SessionToken:
+            []
   /api/hitl-agent:
     post:
       summary: Proxy Hitl
-      description: Proxy endpoint for HITL requests from remote agents.
-Forwards requests to internal HITL service.
+      description: "Proxy endpoint for HITL requests from remote agents.\nForwards requests to internal HITL service."
       operationId: post_proxy_hitl_api_hitl_agent
       tags:
         - HITL
@@ -2067,11 +2601,59 @@ Forwards requests to internal HITL service.
         -
           SessionToken:
             []
+  /api/internal/users/resolve:
+    post:
+      summary: Resolve User Identity
+      description: Internal helper to resolve org_id/user_id for a username.
+      operationId: post_resolve_user_identity_api_internal_users_resolve
+      tags:
+        - Internal
+      responses:
+        200:
+          description: Success
+        400:
+          description: Bad request
+        401:
+          description: Unauthorized
+        500:
+          description: Server error
+      x-source:
+        file: /Users/edwardc/Projects/amp-backend/app.py
+        function: resolve_user_identity
+        line: 10245
+      x-audience: internal
+  /api/llm/classify:
+    post:
+      summary: Classify Llm Prompt
+      description: Classify a prompt using the configured LLM (internal-only).
+      operationId: post_classify_llm_prompt_api_llm_classify
+      tags:
+        - LLM Utilities
+      responses:
+        200:
+          description: Success
+        400:
+          description: Bad request
+        401:
+          description: Unauthorized
+        500:
+          description: Server error
+      x-source:
+        file: /Users/edwardc/Projects/amp-backend/app.py
+        function: classify_llm_prompt
+        line: 11748
+      x-audience: partner
+      security:
+        -
+          ApiKeyAuth:
+            []
+        -
+          SessionToken:
+            []
   /api/log:
     post:
       summary: Proxy Log
-      description: Proxy endpoint for logging requests from remote agents.
-Forwards requests to internal Logger service.
+      description: "Proxy endpoint for logging requests from remote agents.\nForwards requests to internal Logger service."
       operationId: post_proxy_log_api_log
       tags:
         - Log Proxy
@@ -2099,10 +2681,7 @@ Forwards requests to internal Logger service.
   /api/log/hitl-progress:
     get:
       summary: Proxy Log Hitl Progress
-      description: Proxy a HITL progress request to the log service.
-
-Forwards query parameters and any internal secret header. Returns 503
-if the log service is unreachable.
+      description: "Proxy a HITL progress request to the log service.\n\nForwards query parameters and any internal secret header. Returns 503\nif the log service is unreachable."
       operationId: get_proxy_log_hitl_progress_api_log_hitl_progress
       tags:
         - Log Proxy
@@ -2130,10 +2709,7 @@ if the log service is unreachable.
   /api/log/progress-all:
     get:
       summary: Proxy Log Progress All
-      description: Proxy a progress-all status request to the log service.
-
-Forwards query parameters and any internal secret header. Returns 503
-if the log service is unreachable.
+      description: "Proxy a progress-all status request to the log service.\n\nForwards query parameters and any internal secret header. Returns 503\nif the log service is unreachable."
       operationId: get_proxy_log_progress_all_api_log_progress_all
       tags:
         - Log Proxy
@@ -2298,6 +2874,34 @@ if the log service is unreachable.
         -
           SessionToken:
             []
+  /api/presence/ping:
+    post:
+      summary: Presence Ping
+      description: Record a heartbeat indicating the caller is active.
+      operationId: post_presence_ping_api_presence_ping
+      tags:
+        - Presence
+      responses:
+        200:
+          description: Success
+        400:
+          description: Bad request
+        401:
+          description: Unauthorized
+        500:
+          description: Server error
+      x-source:
+        file: /Users/edwardc/Projects/amp-backend/app.py
+        function: presence_ping
+        line: 3206
+      x-audience: partner
+      security:
+        -
+          ApiKeyAuth:
+            []
+        -
+          SessionToken:
+            []
   /api/register:
     options:
       summary: Register
@@ -2440,8 +3044,7 @@ if the log service is unreachable.
   /api/rlhf/decision/bind_workitem:
     post:
       summary: Rlhf Bind Workitem
-      description: Atomically bind an RLHF decision request to a workitem for human-routed decisions.
-Returns deterministic routing fields for client integrators.
+      description: "Atomically bind an RLHF decision request to a workitem for human-routed decisions.\nReturns deterministic routing fields for client integrators."
       operationId: post_rlhf_bind_workitem_api_rlhf_decision_bind_workitem
       tags:
         - RLHF
@@ -2487,6 +3090,34 @@ Returns deterministic routing fields for client integrators.
         function: rlhf_decision_status
         line: 10660
       x-audience: public
+      security:
+        -
+          ApiKeyAuth:
+            []
+        -
+          SessionToken:
+            []
+  /api/rlhf/jobs/enqueue:
+    post:
+      summary: Rlhf Enqueue Job
+      description: Admin endpoint for deterministic RLHF job enqueue (E2E + ops).
+      operationId: post_rlhf_enqueue_job_api_rlhf_jobs_enqueue
+      tags:
+        - RLHF
+      responses:
+        200:
+          description: Success
+        400:
+          description: Bad request
+        401:
+          description: Unauthorized
+        500:
+          description: Server error
+      x-source:
+        file: /Users/edwardc/Projects/amp-backend/app.py
+        function: rlhf_enqueue_job
+        line: 11434
+      x-audience: partner
       security:
         -
           ApiKeyAuth:
@@ -2676,6 +3307,227 @@ Returns deterministic routing fields for client integrators.
         -
           SessionToken:
             []
+  /api/rlhf/stage_tick/trigger:
+    post:
+      summary: Rlhf Trigger Stage Tick
+      description: Enqueue deterministic STAGE_TICK job for accelerated/local test runs.
+      operationId: post_rlhf_trigger_stage_tick_api_rlhf_stage_tick_trigger
+      tags:
+        - RLHF
+      responses:
+        200:
+          description: Success
+        400:
+          description: Bad request
+        401:
+          description: Unauthorized
+        500:
+          description: Server error
+      x-source:
+        file: /Users/edwardc/Projects/amp-backend/app.py
+        function: rlhf_trigger_stage_tick
+        line: 11506
+      x-audience: partner
+      security:
+        -
+          ApiKeyAuth:
+            []
+        -
+          SessionToken:
+            []
+  /api/rlhf/status:
+    get:
+      summary: Rlhf Status
+      description: "Admin runtime status for one (org_id, agent_name) RLHF pipeline."
+      operationId: get_rlhf_status_api_rlhf_status
+      tags:
+        - RLHF
+      responses:
+        200:
+          description: Success
+        400:
+          description: Bad request
+        401:
+          description: Unauthorized
+        500:
+          description: Server error
+      x-source:
+        file: /Users/edwardc/Projects/amp-backend/app.py
+        function: rlhf_status
+        line: 10734
+      x-audience: partner
+      security:
+        -
+          ApiKeyAuth:
+            []
+        -
+          SessionToken:
+            []
+  /api/rlhf/test/reset:
+    post:
+      summary: Rlhf Reset Test State
+      description: Reset RLHF runtime tables for one org+agent to support repeatable E2E runs.
+      operationId: post_rlhf_reset_test_state_api_rlhf_test_reset
+      tags:
+        - RLHF
+      responses:
+        200:
+          description: Success
+        400:
+          description: Bad request
+        401:
+          description: Unauthorized
+        500:
+          description: Server error
+      x-source:
+        file: /Users/edwardc/Projects/amp-backend/app.py
+        function: rlhf_reset_test_state
+        line: 11575
+      x-audience: partner
+      security:
+        -
+          ApiKeyAuth:
+            []
+        -
+          SessionToken:
+            []
+  /api/settings/api-key:
+    post:
+      summary: Settings Generate Api Key
+      description: Generate or regenerate an API key for the current user.
+      operationId: post_settings_generate_api_key_api_settings_api_key
+      tags:
+        - Auth / Sessions
+      responses:
+        200:
+          description: Success
+        400:
+          description: Bad request
+        401:
+          description: Unauthorized
+        500:
+          description: Server error
+      x-source:
+        file: /Users/edwardc/Projects/amp-backend/app.py
+        function: settings_generate_api_key
+        line: 8673
+      x-audience: partner
+      security:
+        -
+          ApiKeyAuth:
+            []
+        -
+          SessionToken:
+            []
+    get:
+      summary: Settings Get Api Key
+      description: "Get API key info (prefix, timestamps) for the current user."
+      operationId: get_settings_get_api_key_api_settings_api_key
+      tags:
+        - Auth / Sessions
+      responses:
+        200:
+          description: Success
+        400:
+          description: Bad request
+        401:
+          description: Unauthorized
+        500:
+          description: Server error
+      x-source:
+        file: /Users/edwardc/Projects/amp-backend/app.py
+        function: settings_get_api_key
+        line: 8684
+      x-audience: partner
+      security:
+        -
+          ApiKeyAuth:
+            []
+        -
+          SessionToken:
+            []
+    delete:
+      summary: Settings Revoke Api Key
+      description: "Revoke the current user's API key."
+      operationId: delete_settings_revoke_api_key_api_settings_api_key
+      tags:
+        - Auth / Sessions
+      responses:
+        200:
+          description: Success
+        400:
+          description: Bad request
+        401:
+          description: Unauthorized
+        500:
+          description: Server error
+      x-source:
+        file: /Users/edwardc/Projects/amp-backend/app.py
+        function: settings_revoke_api_key
+        line: 8695
+      x-audience: partner
+      security:
+        -
+          ApiKeyAuth:
+            []
+        -
+          SessionToken:
+            []
+  /api/user/profile:
+    get:
+      summary: Get User Profile
+      description: "Return the authenticated user's own profile."
+      operationId: get_get_user_profile_api_user_profile
+      tags:
+        - User Profile
+      responses:
+        200:
+          description: Success
+        400:
+          description: Bad request
+        401:
+          description: Unauthorized
+        500:
+          description: Server error
+      x-source:
+        file: /Users/edwardc/Projects/amp-backend/app.py
+        function: get_user_profile
+        line: 3529
+      x-audience: partner
+      security:
+        -
+          ApiKeyAuth:
+            []
+        -
+          SessionToken:
+            []
+    put:
+      summary: Update User Profile
+      description: "Update the authenticated user's own profile fields."
+      operationId: put_update_user_profile_api_user_profile
+      tags:
+        - User Profile
+      responses:
+        200:
+          description: Success
+        400:
+          description: Bad request
+        401:
+          description: Unauthorized
+        500:
+          description: Server error
+      x-source:
+        file: /Users/edwardc/Projects/amp-backend/app.py
+        function: update_user_profile
+        line: 3552
+      x-audience: partner
+      security:
+        -
+          ApiKeyAuth:
+            []
+        -
+          SessionToken:
+            []
   /api/workitems:
     post:
       summary: Create Workitem
@@ -2805,6 +3657,62 @@ Returns deterministic routing fields for client integrators.
         -
           SessionToken:
             []
+  /api/worktray/chat:
+    post:
+      summary: Worktray Chat
+      description: Chat endpoint for worktray page with access to workitems context.
+      operationId: post_worktray_chat_api_worktray_chat
+      tags:
+        - Worktray
+      responses:
+        200:
+          description: Success
+        400:
+          description: Bad request
+        401:
+          description: Unauthorized
+        500:
+          description: Server error
+      x-source:
+        file: /Users/edwardc/Projects/amp-backend/app.py
+        function: worktray_chat
+        line: 6563
+      x-audience: partner
+      security:
+        -
+          ApiKeyAuth:
+            []
+        -
+          SessionToken:
+            []
+  /{path}:
+    get:
+      summary: Spa Index
+      description: "Serve static files from frontend/dist; fallback to index.html for SPA routes.\n\nIf the build output is missing, return a friendly message suggesting to\nrun `npm run build` in the frontend directory."
+      operationId: get_spa_index_path
+      tags:
+        - Frontend Shell
+      responses:
+        200:
+          description: Success
+        400:
+          description: Bad request
+        401:
+          description: Unauthorized
+        500:
+          description: Server error
+      x-source:
+        file: /Users/edwardc/Projects/amp-backend/app.py
+        function: spa_index
+        line: 3104
+      x-audience: internal
+      parameters:
+        -
+          name: path
+          in: path
+          required: true
+          schema:
+            type: string
 components:
   securitySchemes:
     ApiKeyAuth:
