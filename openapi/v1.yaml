@@ -667,7 +667,7 @@ paths:
             []
   /api/agent/{agent_name}/policies/current/rlhf_enabled:
     put:
-      summary: Update Rlhf Enabled
+      summary: Update RLHF Enabled
       description: Update RLHF enabled status for the current policy.
       operationId: put_update_rlhf_enabled_api_agent_agent_name_policies_current_rlhf_enabled
       tags:
@@ -778,7 +778,7 @@ paths:
             []
   /api/agent/{agent_name}/policy/approve:
     post:
-      summary: Approve Rlhf Policy
+      summary: Approve RLHF Policy
       description: Approve and version the RLHF policy for an agent.
       operationId: post_approve_rlhf_policy_api_agent_agent_name_policy_approve
       tags:
@@ -841,7 +841,7 @@ paths:
             []
   /api/agents/{instance_id}/llm_trace:
     get:
-      summary: Get Llm Trace
+      summary: Get LLM Trace
       description: Return the closest LLM trace entry for an instance and timestamp.
       operationId: get_get_llm_trace_api_agents_instance_id_llm_trace
       tags:
@@ -1648,7 +1648,7 @@ paths:
             []
   /api/alp/agents/{name}/instances/{instance_id}/hitl-callback:
     post:
-      summary: Alp Hitl Callback
+      summary: Alp HITL Callback
       description: Proxy endpoint for HITL callbacks (approve/reject) securely.
       operationId: post_alp_hitl_callback_api_alp_agents_name_instances_instance_id_hitl_callback
       tags:
@@ -2148,7 +2148,7 @@ paths:
             []
   /api/amp/sse-status:
     get:
-      summary: Sse Status
+      summary: SSE Status
       description: Debug endpoint to check current SSE connections.
       operationId: get_sse_status_api_amp_sse_status
       tags:
@@ -2260,7 +2260,7 @@ paths:
             []
   /api/analytics/hitl_events:
     get:
-      summary: Analytics Hitl Events
+      summary: Analytics HITL Events
       description: "Return org-scoped hitl_events rows as a JSON array.\n\nQuery params: start_date, end_date (YYYY-MM-DD; default last 30 days).\nsuperadmin may pass ?org_id= to override scope."
       operationId: get_analytics_hitl_events_api_analytics_hitl_events
       tags:
@@ -2316,7 +2316,7 @@ paths:
             []
   /api/analytics/rlhf_autonomy:
     get:
-      summary: Analytics Rlhf Autonomy
+      summary: Analytics RLHF Autonomy
       description: "Return org-scoped RLHF approval_events aggregated by date and agent.\n\nQuery params: start_date, end_date (YYYY-MM-DD; default last 90 days).\nsuperadmin may pass ?org_id= to override scope."
       operationId: get_analytics_rlhf_autonomy_api_analytics_rlhf_autonomy
       tags:
@@ -2344,7 +2344,7 @@ paths:
             []
   /api/analytics/rlhf_stages:
     get:
-      summary: Analytics Rlhf Stages
+      summary: Analytics RLHF Stages
       description: "Return org-scoped current autonomy stage and stage transition history.\n\nReturns: { current: [{agent_name, autonomy_stage, stage_entered_at,\n                       model_version, kill_switch_enabled}],\n           transitions: [{agent_name, from_stage, to_stage, actor_type,\n                           reason, timestamp, previous_model_version,\n                           new_model_version}] }\nsuperadmin may pass ?org_id= to override scope."
       operationId: get_analytics_rlhf_stages_api_analytics_rlhf_stages
       tags:
@@ -2400,7 +2400,7 @@ paths:
             []
   /api/classify_intent:
     post:
-      summary: Classify Intent Api
+      summary: Classify Intent API
       description: Proxy to llm_client.classify_intent for chat command understanding.
       operationId: post_classify_intent_api_api_classify_intent
       tags:
@@ -2547,7 +2547,7 @@ paths:
             []
   /api/hitl-agent:
     post:
-      summary: Proxy Hitl
+      summary: Proxy HITL
       description: "Proxy endpoint for HITL requests from remote agents.\nForwards requests to internal HITL service."
       operationId: post_proxy_hitl_api_hitl_agent
       tags:
@@ -2624,7 +2624,7 @@ paths:
       x-audience: internal
   /api/llm/classify:
     post:
-      summary: Classify Llm Prompt
+      summary: Classify LLM Prompt
       description: Classify a prompt using the configured LLM (internal-only).
       operationId: post_classify_llm_prompt_api_llm_classify
       tags:
@@ -2680,7 +2680,7 @@ paths:
             []
   /api/log/hitl-progress:
     get:
-      summary: Proxy Log Hitl Progress
+      summary: Proxy Log HITL Progress
       description: "Proxy a HITL progress request to the log service.\n\nForwards query parameters and any internal secret header. Returns 503\nif the log service is unreachable."
       operationId: get_proxy_log_hitl_progress_api_log_hitl_progress
       tags:
@@ -2736,7 +2736,7 @@ paths:
             []
   /api/log_llm:
     post:
-      summary: Log Llm Response
+      summary: Log LLM Response
       description: Append a USER/LLM exchange to logs/amp.log for later auditing/debugging.
       operationId: post_log_llm_response_api_log_llm
       tags:
@@ -2959,7 +2959,7 @@ paths:
             []
   /api/rlhf/approval_request:
     get:
-      summary: Rlhf Fetch Approval Request
+      summary: RLHF Fetch Approval Request
       description: Fetch a stored RLHF approval request by decision_point_id.
       operationId: get_rlhf_fetch_approval_request_api_rlhf_approval_request
       tags:
@@ -2987,7 +2987,7 @@ paths:
             []
   /api/rlhf/bootstrap:
     post:
-      summary: Rlhf Bootstrap Agent
+      summary: RLHF Bootstrap Agent
       description: Bootstrap rlhf_agent_config/state from policy and optionally enqueue STAGE_TICK.
       operationId: post_rlhf_bootstrap_agent_api_rlhf_bootstrap
       tags:
@@ -3015,7 +3015,7 @@ paths:
             []
   /api/rlhf/contract/approve:
     post:
-      summary: Rlhf Approve Contract
+      summary: RLHF Approve Contract
       description: "Approve an RLHF policy contract binding the policy to an org and agent.\n\nCalculates an approval hash over the policy, allowlists, and approver info,\nthen stores the contract record in the database."
       operationId: post_rlhf_approve_contract_api_rlhf_contract_approve
       tags:
@@ -3043,7 +3043,7 @@ paths:
             []
   /api/rlhf/decision/bind_workitem:
     post:
-      summary: Rlhf Bind Workitem
+      summary: RLHF Bind Workitem
       description: "Atomically bind an RLHF decision request to a workitem for human-routed decisions.\nReturns deterministic routing fields for client integrators."
       operationId: post_rlhf_bind_workitem_api_rlhf_decision_bind_workitem
       tags:
@@ -3071,7 +3071,7 @@ paths:
             []
   /api/rlhf/decision_status:
     get:
-      summary: Rlhf Decision Status
+      summary: RLHF Decision Status
       description: "Deterministic status for one decision_point_id (routing, mode, and workitem linkage)."
       operationId: get_rlhf_decision_status_api_rlhf_decision_status
       tags:
@@ -3099,7 +3099,7 @@ paths:
             []
   /api/rlhf/jobs/enqueue:
     post:
-      summary: Rlhf Enqueue Job
+      summary: RLHF Enqueue Job
       description: Admin endpoint for deterministic RLHF job enqueue (E2E + ops).
       operationId: post_rlhf_enqueue_job_api_rlhf_jobs_enqueue
       tags:
@@ -3127,7 +3127,7 @@ paths:
             []
   /api/rlhf/models:
     get:
-      summary: Rlhf Model Registry List
+      summary: RLHF Model Registry List
       description: "List model versions in the registry, optionally filtered by org/agent/status."
       operationId: get_rlhf_model_registry_list_api_rlhf_models
       tags:
@@ -3155,7 +3155,7 @@ paths:
             []
   /api/rlhf/models/{model_id}/activate:
     post:
-      summary: Rlhf Model Registry Activate
+      summary: RLHF Model Registry Activate
       description: "Activate a model version. Retires the currently active model for\nthe same (org_id, agent_name) and marks this one as active.\nSuperadmin only."
       operationId: post_rlhf_model_registry_activate_api_rlhf_models_model_id_activate
       tags:
@@ -3190,7 +3190,7 @@ paths:
             []
   /api/rlhf/models/{model_id}/retire:
     post:
-      summary: Rlhf Model Registry Retire
+      summary: RLHF Model Registry Retire
       description: Retire a model version. Superadmin only.
       operationId: post_rlhf_model_registry_retire_api_rlhf_models_model_id_retire
       tags:
@@ -3225,7 +3225,7 @@ paths:
             []
   /api/rlhf/outcome:
     post:
-      summary: Rlhf Submit Outcome
+      summary: RLHF Submit Outcome
       description: Submit RLHF approval outcome to HITL agent (internal wiring).
       operationId: post_rlhf_submit_outcome_api_rlhf_outcome
       tags:
@@ -3253,7 +3253,7 @@ paths:
             []
   /api/rlhf/policy:
     get:
-      summary: Rlhf Get Policy
+      summary: RLHF Get Policy
       description: "Retrieve the active RLHF policy for an agent.\n\nReturns the policy JSON, version, feature schema version, current autonomy\nstage, and RLHF status flags."
       operationId: get_rlhf_get_policy_api_rlhf_policy
       tags:
@@ -3281,7 +3281,7 @@ paths:
             []
   /api/rlhf/policy/save:
     post:
-      summary: Rlhf Save Policy
+      summary: RLHF Save Policy
       description: "Save a new RLHF policy JSON for an agent.\n\nValidates against the policy schema, stamps the version, and persists via\n_save_rlhf_policy. Returns the saved version and policy."
       operationId: post_rlhf_save_policy_api_rlhf_policy_save
       tags:
@@ -3309,7 +3309,7 @@ paths:
             []
   /api/rlhf/stage_tick/trigger:
     post:
-      summary: Rlhf Trigger Stage Tick
+      summary: RLHF Trigger Stage Tick
       description: Enqueue deterministic STAGE_TICK job for accelerated/local test runs.
       operationId: post_rlhf_trigger_stage_tick_api_rlhf_stage_tick_trigger
       tags:
@@ -3337,7 +3337,7 @@ paths:
             []
   /api/rlhf/status:
     get:
-      summary: Rlhf Status
+      summary: RLHF Status
       description: "Admin runtime status for one (org_id, agent_name) RLHF pipeline."
       operationId: get_rlhf_status_api_rlhf_status
       tags:
@@ -3365,7 +3365,7 @@ paths:
             []
   /api/rlhf/test/reset:
     post:
-      summary: Rlhf Reset Test State
+      summary: RLHF Reset Test State
       description: Reset RLHF runtime tables for one org+agent to support repeatable E2E runs.
       operationId: post_rlhf_reset_test_state_api_rlhf_test_reset
       tags:
@@ -3393,7 +3393,7 @@ paths:
             []
   /api/settings/api-key:
     post:
-      summary: Settings Generate Api Key
+      summary: Settings Generate API Key
       description: Generate or regenerate an API key for the current user.
       operationId: post_settings_generate_api_key_api_settings_api_key
       tags:
@@ -3420,7 +3420,7 @@ paths:
           SessionToken:
             []
     get:
-      summary: Settings Get Api Key
+      summary: Settings Get API Key
       description: "Get API key info (prefix, timestamps) for the current user."
       operationId: get_settings_get_api_key_api_settings_api_key
       tags:
@@ -3447,7 +3447,7 @@ paths:
           SessionToken:
             []
     delete:
-      summary: Settings Revoke Api Key
+      summary: Settings Revoke API Key
       description: "Revoke the current user's API key."
       operationId: delete_settings_revoke_api_key_api_settings_api_key
       tags:
