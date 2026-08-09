@@ -1,2229 +1,2869 @@
 openapi: 3.0.3
 info:
   title: AMP API
-  version: 1.0
-  description: "REST API for the AMP (Autonomous Multi-agent Platform). Integrate your agents with AMP to get transparency, accountability, and human oversight (HITL) for governed AI agent operations."
+  version: '1.0'
+  description: REST API for the AMP (Autonomous Multi-agent Platform). Integrate your
+    agents with AMP to get transparency, accountability, and human oversight (HITL)
+    for governed AI agent operations.
 servers:
-  -
-    url: "https://api.amp.example.com"
-    description: Production (placeholder)
-  -
-    url: "http://localhost:5000"
-    description: Local development
+- url: https://api.amp.example.com
+  description: Production (placeholder)
+- url: http://localhost:5000
+  description: Local development
 tags:
-  -
-    name: Agent Lifecycle
-    description: "Agent registration, launch, callback, and lifecycle operations."
-  -
-    name: Analytics
-    description: Analytics and dashboard query APIs.
-  -
-    name: Auth / Sessions
-    description: Authentication and session-related APIs.
-  -
-    name: HITL
-    description: Human-in-the-loop routing and decision APIs.
-  -
-    name: Log Proxy
-    description: Agent log ingestion and proxy APIs.
-  -
-    name: RLHF
-    description: "RLHF policy, runtime, and decision management APIs."
-  -
-    name: Uncategorized
-    description: Routes pending category assignment.
-  -
-    name: Workitems
-    description: Work item queue and status APIs for human review.
+- name: Agent Lifecycle
+  description: Agent registration, launch, callback, and lifecycle operations.
+- name: Analytics
+  description: Analytics and dashboard query APIs.
+- name: Auth / Sessions
+  description: Authentication and session-related APIs.
+- name: HITL
+  description: Human-in-the-loop routing and decision APIs.
+- name: Log Proxy
+  description: Agent log ingestion and proxy APIs.
+- name: RLHF
+  description: RLHF policy, runtime, and decision management APIs.
+- name: Uncategorized
+  description: Routes pending category assignment.
+- name: Workitems
+  description: Work item queue and status APIs for human review.
 paths:
   /api/abort:
     post:
       summary: Abort Agent
-      description: "Append an \"aborted\" entry for the given agent_id to the log service."
+      description: Append an "aborted" entry for the given agent_id to the log service.
       operationId: post_abort_agent_api_abort
       tags:
-        - Agent Lifecycle
+      - Agent Lifecycle
       responses:
-        200:
+        '200':
           description: Success
-        400:
+        '400':
           description: Bad request
-        401:
+        '401':
           description: Unauthorized
-        500:
+        '500':
           description: Server error
       x-source:
         file: /Users/edwardc/Projects/amp-backend/app.py
         function: abort_agent
-        line: 8081
+        line: 12952
       x-audience: public
       security:
-        -
-          ApiKeyAuth:
-            []
-        -
-          SessionToken:
-            []
+      - ApiKeyAuth: []
+      - SessionToken: []
+  /api/agent-tasks/agent-limit:
+    get:
+      summary: Get Agent Limit
+      description: "Return the org's current agent count vs. their subscription limit.\n\
+        \nReturns:\n    JSON with allowed, current, max (null = unlimited), tier_name,\
+        \ tier_type"
+      operationId: get_get_agent_limit_api_agent_tasks_agent_limit
+      tags:
+      - Agent Lifecycle
+      responses:
+        '200':
+          description: Success
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '500':
+          description: Server error
+      x-source:
+        file: /Users/edwardc/Projects/amp-backend/app.py
+        function: get_agent_limit
+        line: 8097
+      x-audience: public
+      security:
+      - ApiKeyAuth: []
+      - SessionToken: []
   /api/agent-tasks/complete:
     post:
       summary: Complete Agent Task
-      description: "Mark a task as completed (for remote agents).\n\nRemote agents call this after successfully processing a task.\n\nBody:\n    agent_name: Name of the agent (required)\n    task_id: ID of the completed task (required)\n\nReturns:\n    JSON with 'ok' field"
+      description: "Mark a task as completed (for remote agents).\n\nRemote agents\
+        \ call this after successfully processing a task.\n\nBody:\n    agent_name:\
+        \ Name of the agent (required)\n    task_id: ID of the completed task (required)\n\
+        \nReturns:\n    JSON with 'ok' field"
       operationId: post_complete_agent_task_api_agent_tasks_complete
       tags:
-        - Agent Lifecycle
+      - Agent Lifecycle
       responses:
-        200:
+        '200':
           description: Success
-        400:
+        '400':
           description: Bad request
-        401:
+        '401':
           description: Unauthorized
-        500:
+        '500':
           description: Server error
       x-source:
         file: /Users/edwardc/Projects/amp-backend/app.py
         function: complete_agent_task
-        line: 5419
+        line: 8071
       x-audience: public
       security:
-        -
-          ApiKeyAuth:
-            []
-        -
-          SessionToken:
-            []
+      - ApiKeyAuth: []
+      - SessionToken: []
+  /api/agent-tasks/delete:
+    delete:
+      summary: Delete Remote Agent
+      description: 'Hard-delete a remote agent and its on-disk folder.
+
+
+        Authorized callers are the owning user, org admins, and superadmins.
+
+        This action is irreversible.'
+      operationId: delete_delete_remote_agent_api_agent_tasks_delete
+      tags:
+      - Agent Lifecycle
+      responses:
+        '200':
+          description: Success
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '500':
+          description: Server error
+      x-source:
+        file: /Users/edwardc/Projects/amp-backend/app.py
+        function: delete_remote_agent
+        line: 8158
+      x-audience: public
+      security:
+      - ApiKeyAuth: []
+      - SessionToken: []
   /api/agent-tasks/poll:
     get:
       summary: Poll Agent Tasks
-      description: "Poll for pending queued tasks (for remote agents).\n\nThis endpoint exists for legacy/optional queued-task workflows.\nLaunch/abort in AMP are direct calls and do not enqueue tasks.\nAgents also auto-register themselves on first poll.\n\nQuery params:\n    agent_name: Name of the agent (required)\n    owner: Owner's email/username (required)\n    long_name: Display name (optional, for registration)\n    description: Agent description (optional, for registration)\n\nReturns:\n    JSON with 'tasks' array"
+      description: "Poll for pending queued tasks (for remote agents).\n\nThis endpoint\
+        \ exists for legacy/optional queued-task workflows.\nLaunch/abort in AMP are\
+        \ direct calls and do not enqueue tasks.\nAgents also auto-register themselves\
+        \ on first poll.\n\nQuery params:\n    agent_name: Name of the agent (required)\n\
+        \    owner: Owner's email/username (required)\n    long_name: Display name\
+        \ (optional, for registration)\n    description: Agent description (optional,\
+        \ for registration)\n\nReturns:\n    JSON with 'tasks' array"
       operationId: get_poll_agent_tasks_api_agent_tasks_poll
       tags:
-        - Agent Lifecycle
+      - Agent Lifecycle
       responses:
-        200:
+        '200':
           description: Success
-        400:
+        '400':
           description: Bad request
-        401:
+        '401':
           description: Unauthorized
-        500:
+        '500':
           description: Server error
       x-source:
         file: /Users/edwardc/Projects/amp-backend/app.py
         function: poll_agent_tasks
-        line: 5363
+        line: 8015
       x-audience: public
       security:
-        -
-          ApiKeyAuth:
-            []
-        -
-          SessionToken:
-            []
+      - ApiKeyAuth: []
+      - SessionToken: []
+  /api/agent-tasks/publish:
+    post:
+      summary: Publish Remote Agent
+      description: 'Publish a personal remote agent to org-shared scope.
+
+
+        Stores ownership marker in username as ''<creator_username>*''.'
+      operationId: post_publish_remote_agent_api_agent_tasks_publish
+      tags:
+      - Agent Lifecycle
+      responses:
+        '200':
+          description: Success
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '500':
+          description: Server error
+      x-source:
+        file: /Users/edwardc/Projects/amp-backend/app.py
+        function: publish_remote_agent
+        line: 8209
+      x-audience: public
+      security:
+      - ApiKeyAuth: []
+      - SessionToken: []
   /api/agent-tasks/register:
     post:
       summary: Register Agent
-      description: "Deprecated: register a remote agent. Agent ID is auto-generated from display name.\n\nBody:\n    long_name: Display name for the agent (required)\n    description: Agent description (optional)\n    auto_start: Allow agent-initiated instances to start immediately (optional, default false)\n\nReturns:\n    JSON with registered agent info including generated agent_name"
+      description: "Deprecated: register a remote agent. Agent ID is auto-generated\
+        \ from display name.\n\nBody:\n    long_name: Display name for the agent (required)\n\
+        \    description: Agent description (optional)\n    auto_start: Allow agent-initiated\
+        \ instances to start immediately (optional, default false)\n\nReturns:\n \
+        \   JSON with registered agent info including generated agent_name"
       operationId: post_register_agent_api_agent_tasks_register
       tags:
-        - Agent Lifecycle
+      - Agent Lifecycle
       responses:
-        200:
+        '200':
           description: Success
-        400:
+        '400':
           description: Bad request
-        401:
+        '401':
           description: Unauthorized
-        500:
+        '500':
           description: Server error
       x-source:
         file: /Users/edwardc/Projects/amp-backend/app.py
         function: register_agent
-        line: 5480
+        line: 8278
       x-audience: public
       security:
-        -
-          ApiKeyAuth:
-            []
-        -
-          SessionToken:
-            []
+      - ApiKeyAuth: []
+      - SessionToken: []
+  /api/agent-tasks/unpublish:
+    post:
+      summary: Unpublish Remote Agent
+      description: 'Unpublish an org-shared remote agent back to personal ownership.
+
+
+        Original creator and admins/superadmins are authorized to unpublish.'
+      operationId: post_unpublish_remote_agent_api_agent_tasks_unpublish
+      tags:
+      - Agent Lifecycle
+      responses:
+        '200':
+          description: Success
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '500':
+          description: Server error
+      x-source:
+        file: /Users/edwardc/Projects/amp-backend/app.py
+        function: unpublish_remote_agent
+        line: 8244
+      x-audience: public
+      security:
+      - ApiKeyAuth: []
+      - SessionToken: []
   /api/agent-tasks/unregister:
     post:
       summary: Unregister Remote Agent
-      description: "Unregister a remote agent (remove from registry).\n\nThis allows users to remove stale or unwanted remote agents.\nRequires authentication - users can only unregister their own agents.\n\nBody:\n    agent_name: Name of the agent to unregister (required)\n\nReturns:\n    JSON with 'ok' field"
+      description: "Unregister a remote agent (remove from registry).\n\nThis allows\
+        \ users to remove stale or unwanted remote agents.\nRequires authentication\
+        \ - users can only unregister their own agents.\n\nBody:\n    agent_name:\
+        \ Name of the agent to unregister (required)\n\nReturns:\n    JSON with 'ok'\
+        \ field"
       operationId: post_unregister_remote_agent_api_agent_tasks_unregister
       tags:
-        - Agent Lifecycle
+      - Agent Lifecycle
       responses:
-        200:
+        '200':
           description: Success
-        400:
+        '400':
           description: Bad request
-        401:
+        '401':
           description: Unauthorized
-        500:
+        '500':
           description: Server error
       x-source:
         file: /Users/edwardc/Projects/amp-backend/app.py
         function: unregister_remote_agent
-        line: 5445
+        line: 8123
       x-audience: public
       security:
-        -
-          ApiKeyAuth:
-            []
-        -
-          SessionToken:
-            []
+      - ApiKeyAuth: []
+      - SessionToken: []
+  /api/agent-tasks/update:
+    options:
+      summary: Update Remote Agent
+      description: "Update metadata for a remote agent (description, long_name).\n\
+        \nBody:\n    agent_name: Name of the agent to update (required)\n    description:\
+        \ New description (optional)\n    long_name: New display name (optional)\n\
+        \nReturns:\n    JSON with updated agent info"
+      operationId: options_update_remote_agent_api_agent_tasks_update
+      tags: &id001
+      - Agent Lifecycle
+      responses:
+        '200':
+          description: Success
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '500':
+          description: Server error
+      x-source:
+        file: /Users/edwardc/Projects/amp-backend/app.py
+        function: update_remote_agent
+        line: 8328
+      x-audience: public
+      security:
+      - ApiKeyAuth: []
+      - SessionToken: []
+    patch:
+      summary: Update Remote Agent
+      description: "Update metadata for a remote agent (description, long_name).\n\
+        \nBody:\n    agent_name: Name of the agent to update (required)\n    description:\
+        \ New description (optional)\n    long_name: New display name (optional)\n\
+        \nReturns:\n    JSON with updated agent info"
+      operationId: patch_update_remote_agent_api_agent_tasks_update
+      tags: *id001
+      responses:
+        '200':
+          description: Success
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '500':
+          description: Server error
+      x-source:
+        file: /Users/edwardc/Projects/amp-backend/app.py
+        function: update_remote_agent
+        line: 8328
+      x-audience: public
+      security:
+      - ApiKeyAuth: []
+      - SessionToken: []
   /api/agent/init:
     post:
       summary: Agent Init
       description: Create a new instance via API key auth (agent-initiated).
       operationId: post_agent_init_api_agent_init
       tags:
-        - Agent Lifecycle
+      - Agent Lifecycle
       responses:
-        200:
+        '200':
           description: Success
-        400:
+        '400':
           description: Bad request
-        401:
+        '401':
           description: Unauthorized
-        500:
+        '500':
           description: Server error
       x-source:
         file: /Users/edwardc/Projects/amp-backend/app.py
         function: agent_init
-        line: 10213
+        line: 16214
       x-audience: public
       security:
-        -
-          ApiKeyAuth:
-            []
-        -
-          SessionToken:
-            []
+      - ApiKeyAuth: []
+      - SessionToken: []
   /api/agent/setState:
     post:
       summary: Agent Set State
-      description: "Set lifecycle status in instance meta.json.\n\nPayload:\n    agent_name: str (required)\n    instance_id: str (required)\n    state: one of initiated|active|finished|wait|abort (required)"
+      description: "Set lifecycle status in instance meta.json.\n\nPayload:\n    agent_name:\
+        \ str (required)\n    instance_id: str (required)\n    state: one of initiated|active|finished|wait|abort\
+        \ (required)"
       operationId: post_agent_set_state_api_agent_setstate
       tags:
-        - Agent Lifecycle
+      - Agent Lifecycle
       responses:
-        200:
+        '200':
           description: Success
-        400:
+        '400':
           description: Bad request
-        401:
+        '401':
           description: Unauthorized
-        500:
+        '500':
           description: Server error
       x-source:
         file: /Users/edwardc/Projects/amp-backend/app.py
         function: agent_set_state
-        line: 10230
+        line: 16231
       x-audience: public
       security:
-        -
-          ApiKeyAuth:
-            []
-        -
-          SessionToken:
-            []
+      - ApiKeyAuth: []
+      - SessionToken: []
   /api/agent/start:
     post:
       summary: Agent Start
       description: Deprecated alias for /api/agent/init.
       operationId: post_agent_start_api_agent_start
       tags:
-        - Agent Lifecycle
+      - Agent Lifecycle
       responses:
-        200:
+        '200':
           description: Success
-        400:
+        '400':
           description: Bad request
-        401:
+        '401':
           description: Unauthorized
-        500:
+        '500':
           description: Server error
       x-source:
         file: /Users/edwardc/Projects/amp-backend/app.py
         function: agent_start
-        line: 10219
+        line: 16220
       x-audience: public
       security:
-        -
-          ApiKeyAuth:
-            []
-        -
-          SessionToken:
-            []
+      - ApiKeyAuth: []
+      - SessionToken: []
   /api/agent/{agent_name}/autonomy_ops:
     get:
       summary: Get Agent Autonomy Ops
       description: Get autonomy_ops from policy.json for an agent.
       operationId: get_get_agent_autonomy_ops_api_agent_agent_name_autonomy_ops
       tags:
-        - Agent Lifecycle
+      - Agent Lifecycle
       responses:
-        200:
+        '200':
           description: Success
-        400:
+        '400':
           description: Bad request
-        401:
+        '401':
           description: Unauthorized
-        500:
+        '500':
           description: Server error
       x-source:
         file: /Users/edwardc/Projects/amp-backend/app.py
         function: get_agent_autonomy_ops
-        line: 11481
+        line: 17626
       x-audience: public
       parameters:
-        -
-          name: agent_name
-          in: path
-          required: true
-          schema:
-            type: string
+      - name: agent_name
+        in: path
+        required: true
+        schema:
+          type: string
       security:
-        -
-          ApiKeyAuth:
-            []
-        -
-          SessionToken:
-            []
+      - ApiKeyAuth: []
+      - SessionToken: []
     post:
       summary: Save Agent Autonomy Ops
       description: Save autonomy_ops to policy.json for an agent.
       operationId: post_save_agent_autonomy_ops_api_agent_agent_name_autonomy_ops
       tags:
-        - Agent Lifecycle
+      - Agent Lifecycle
       responses:
-        200:
+        '200':
           description: Success
-        400:
+        '400':
           description: Bad request
-        401:
+        '401':
           description: Unauthorized
-        500:
+        '500':
           description: Server error
       x-source:
         file: /Users/edwardc/Projects/amp-backend/app.py
         function: save_agent_autonomy_ops
-        line: 11520
+        line: 17673
       x-audience: public
       parameters:
-        -
-          name: agent_name
-          in: path
-          required: true
-          schema:
-            type: string
+      - name: agent_name
+        in: path
+        required: true
+        schema:
+          type: string
       security:
-        -
-          ApiKeyAuth:
-            []
-        -
-          SessionToken:
-            []
+      - ApiKeyAuth: []
+      - SessionToken: []
   /api/agent/{agent_name}/criteria:
     get:
       summary: Get Agent Criteria
       description: Get criteria from policy.json for an agent.
       operationId: get_get_agent_criteria_api_agent_agent_name_criteria
       tags:
-        - Agent Lifecycle
+      - Agent Lifecycle
       responses:
-        200:
+        '200':
           description: Success
-        400:
+        '400':
           description: Bad request
-        401:
+        '401':
           description: Unauthorized
-        500:
+        '500':
           description: Server error
       x-source:
         file: /Users/edwardc/Projects/amp-backend/app.py
         function: get_agent_criteria
-        line: 11346
+        line: 17492
       x-audience: public
       parameters:
-        -
-          name: agent_name
-          in: path
-          required: true
-          schema:
-            type: string
+      - name: agent_name
+        in: path
+        required: true
+        schema:
+          type: string
       security:
-        -
-          ApiKeyAuth:
-            []
-        -
-          SessionToken:
-            []
+      - ApiKeyAuth: []
+      - SessionToken: []
     post:
       summary: Save Agent Criteria
       description: Save criteria to policy.json for an agent.
       operationId: post_save_agent_criteria_api_agent_agent_name_criteria
       tags:
-        - Agent Lifecycle
+      - Agent Lifecycle
       responses:
-        200:
+        '200':
           description: Success
-        400:
+        '400':
           description: Bad request
-        401:
+        '401':
           description: Unauthorized
-        500:
+        '500':
           description: Server error
       x-source:
         file: /Users/edwardc/Projects/amp-backend/app.py
         function: save_agent_criteria
-        line: 11389
+        line: 17535
       x-audience: public
       parameters:
-        -
-          name: agent_name
-          in: path
-          required: true
-          schema:
-            type: string
+      - name: agent_name
+        in: path
+        required: true
+        schema:
+          type: string
       security:
-        -
-          ApiKeyAuth:
-            []
-        -
-          SessionToken:
-            []
+      - ApiKeyAuth: []
+      - SessionToken: []
   /api/agent/{agent_name}/eval-policy:
     post:
       summary: Save Approve Eval Policy
-      description: Save and approve an eval-type policy (save criteria + version + approve in one shot).
+      description: Save and approve an eval-type policy (save criteria + version +
+        approve in one shot).
       operationId: post_save_approve_eval_policy_api_agent_agent_name_eval_policy
       tags:
-        - Agent Lifecycle
+      - Agent Lifecycle
       responses:
-        200:
+        '200':
           description: Success
-        400:
+        '400':
           description: Bad request
-        401:
+        '401':
           description: Unauthorized
-        500:
+        '500':
           description: Server error
       x-source:
         file: /Users/edwardc/Projects/amp-backend/app.py
         function: save_approve_eval_policy
-        line: 11742
+        line: 18127
       x-audience: public
       parameters:
-        -
-          name: agent_name
-          in: path
-          required: true
-          schema:
-            type: string
+      - name: agent_name
+        in: path
+        required: true
+        schema:
+          type: string
       security:
-        -
-          ApiKeyAuth:
-            []
-        -
-          SessionToken:
-            []
+      - ApiKeyAuth: []
+      - SessionToken: []
   /api/agent/{agent_name}/eval-policy/deactivate:
     put:
       summary: Deactivate Eval Policy
-      description: Deactivate the current active eval policy. The agent will have no active policy afterward.
+      description: Deactivate the current active eval policy. The agent will have
+        no active policy afterward.
       operationId: put_deactivate_eval_policy_api_agent_agent_name_eval_policy_deactivate
       tags:
-        - Agent Lifecycle
+      - Agent Lifecycle
       responses:
-        200:
+        '200':
           description: Success
-        400:
+        '400':
           description: Bad request
-        401:
+        '401':
           description: Unauthorized
-        500:
+        '500':
           description: Server error
       x-source:
         file: /Users/edwardc/Projects/amp-backend/app.py
         function: deactivate_eval_policy
-        line: 14035
+        line: 21045
       x-audience: public
       parameters:
-        -
-          name: agent_name
-          in: path
-          required: true
-          schema:
-            type: string
+      - name: agent_name
+        in: path
+        required: true
+        schema:
+          type: string
       security:
-        -
-          ApiKeyAuth:
-            []
-        -
-          SessionToken:
-            []
+      - ApiKeyAuth: []
+      - SessionToken: []
   /api/agent/{agent_name}/eval-policy/reactivate:
     put:
       summary: Reactivate Eval Policy
       description: Reactivate the latest (highest-numbered) eval policy version.
       operationId: put_reactivate_eval_policy_api_agent_agent_name_eval_policy_reactivate
       tags:
-        - Agent Lifecycle
+      - Agent Lifecycle
       responses:
-        200:
+        '200':
           description: Success
-        400:
+        '400':
           description: Bad request
-        401:
+        '401':
           description: Unauthorized
-        500:
+        '500':
           description: Server error
       x-source:
         file: /Users/edwardc/Projects/amp-backend/app.py
         function: reactivate_eval_policy
-        line: 14077
+        line: 21087
       x-audience: public
       parameters:
-        -
-          name: agent_name
-          in: path
-          required: true
-          schema:
-            type: string
+      - name: agent_name
+        in: path
+        required: true
+        schema:
+          type: string
       security:
-        -
-          ApiKeyAuth:
-            []
-        -
-          SessionToken:
-            []
+      - ApiKeyAuth: []
+      - SessionToken: []
   /api/agent/{agent_name}/features:
     get:
       summary: Get Agent Features
       description: Get policy.json for an agent (features section).
       operationId: get_get_agent_features_api_agent_agent_name_features
       tags:
-        - Agent Lifecycle
+      - Agent Lifecycle
       responses:
-        200:
+        '200':
           description: Success
-        400:
+        '400':
           description: Bad request
-        401:
+        '401':
           description: Unauthorized
-        500:
+        '500':
           description: Server error
       x-source:
         file: /Users/edwardc/Projects/amp-backend/app.py
         function: get_agent_features
-        line: 11154
+        line: 17259
       x-audience: public
       parameters:
-        -
-          name: agent_name
-          in: path
-          required: true
-          schema:
-            type: string
+      - name: agent_name
+        in: path
+        required: true
+        schema:
+          type: string
       security:
-        -
-          ApiKeyAuth:
-            []
-        -
-          SessionToken:
-            []
+      - ApiKeyAuth: []
+      - SessionToken: []
     post:
       summary: Save Agent Features
       description: Save policy.json for an agent (features section).
       operationId: post_save_agent_features_api_agent_agent_name_features
       tags:
-        - Agent Lifecycle
+      - Agent Lifecycle
       responses:
-        200:
+        '200':
           description: Success
-        400:
+        '400':
           description: Bad request
-        401:
+        '401':
           description: Unauthorized
-        500:
+        '500':
           description: Server error
       x-source:
         file: /Users/edwardc/Projects/amp-backend/app.py
         function: save_agent_features
-        line: 11247
+        line: 17352
       x-audience: public
       parameters:
-        -
-          name: agent_name
-          in: path
-          required: true
-          schema:
-            type: string
+      - name: agent_name
+        in: path
+        required: true
+        schema:
+          type: string
       security:
-        -
-          ApiKeyAuth:
-            []
-        -
-          SessionToken:
-            []
+      - ApiKeyAuth: []
+      - SessionToken: []
   /api/agent/{agent_name}/features/generate-description:
     post:
       summary: Generate Feature Description
       description: Generate a description for a feature field using LLM.
       operationId: post_generate_feature_description_api_agent_agent_name_features_generate_description
       tags:
-        - Agent Lifecycle
+      - Agent Lifecycle
       responses:
-        200:
+        '200':
           description: Success
-        400:
+        '400':
           description: Bad request
-        401:
+        '401':
           description: Unauthorized
-        500:
+        '500':
           description: Server error
       x-source:
         file: /Users/edwardc/Projects/amp-backend/app.py
         function: generate_feature_description
-        line: 11910
+        line: 18304
       x-audience: public
       parameters:
-        -
-          name: agent_name
-          in: path
-          required: true
-          schema:
-            type: string
+      - name: agent_name
+        in: path
+        required: true
+        schema:
+          type: string
       security:
-        -
-          ApiKeyAuth:
-            []
-        -
-          SessionToken:
-            []
+      - ApiKeyAuth: []
+      - SessionToken: []
   /api/agent/{agent_name}/policies/current/rlhf_enabled:
     put:
       summary: Update RLHF Enabled
       description: Update RLHF enabled status for the current policy.
       operationId: put_update_rlhf_enabled_api_agent_agent_name_policies_current_rlhf_enabled
       tags:
-        - Agent Lifecycle
+      - Agent Lifecycle
       responses:
-        200:
+        '200':
           description: Success
-        400:
+        '400':
           description: Bad request
-        401:
+        '401':
           description: Unauthorized
-        500:
+        '500':
           description: Server error
       x-source:
         file: /Users/edwardc/Projects/amp-backend/app.py
         function: update_rlhf_enabled
-        line: 14126
+        line: 21136
       x-audience: public
       parameters:
-        -
-          name: agent_name
-          in: path
-          required: true
-          schema:
-            type: string
+      - name: agent_name
+        in: path
+        required: true
+        schema:
+          type: string
       security:
-        -
-          ApiKeyAuth:
-            []
-        -
-          SessionToken:
-            []
+      - ApiKeyAuth: []
+      - SessionToken: []
   /api/agent/{agent_name}/policies/versions:
     get:
       summary: Get Policy Versions
       description: Get all policy versions for an agent.
       operationId: get_get_policy_versions_api_agent_agent_name_policies_versions
       tags:
-        - Agent Lifecycle
+      - Agent Lifecycle
       responses:
-        200:
+        '200':
           description: Success
-        400:
+        '400':
           description: Bad request
-        401:
+        '401':
           description: Unauthorized
-        500:
+        '500':
           description: Server error
       x-source:
         file: /Users/edwardc/Projects/amp-backend/app.py
         function: get_policy_versions
-        line: 13934
+        line: 20944
       x-audience: public
       parameters:
-        -
-          name: agent_name
-          in: path
-          required: true
-          schema:
-            type: string
+      - name: agent_name
+        in: path
+        required: true
+        schema:
+          type: string
       security:
-        -
-          ApiKeyAuth:
-            []
-        -
-          SessionToken:
-            []
+      - ApiKeyAuth: []
+      - SessionToken: []
   /api/agent/{agent_name}/policies/{version}:
     get:
       summary: Get Policy Version
       description: Get a specific policy version.
       operationId: get_get_policy_version_api_agent_agent_name_policies_version
       tags:
-        - Agent Lifecycle
+      - Agent Lifecycle
       responses:
-        200:
+        '200':
           description: Success
-        400:
+        '400':
           description: Bad request
-        401:
+        '401':
           description: Unauthorized
-        500:
+        '500':
           description: Server error
       x-source:
         file: /Users/edwardc/Projects/amp-backend/app.py
         function: get_policy_version
-        line: 14007
+        line: 21017
       x-audience: public
       parameters:
-        -
-          name: agent_name
-          in: path
-          required: true
-          schema:
-            type: string
-        -
-          name: version
-          in: path
-          required: true
-          schema:
-            type: string
+      - name: agent_name
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: version
+        in: path
+        required: true
+        schema:
+          type: string
       security:
-        -
-          ApiKeyAuth:
-            []
-        -
-          SessionToken:
-            []
+      - ApiKeyAuth: []
+      - SessionToken: []
   /api/agent/{agent_name}/policy/approve:
     post:
       summary: Approve RLHF Policy
       description: Approve and version the RLHF policy for an agent.
       operationId: post_approve_rlhf_policy_api_agent_agent_name_policy_approve
       tags:
-        - Agent Lifecycle
+      - Agent Lifecycle
       responses:
-        200:
+        '200':
           description: Success
-        400:
+        '400':
           description: Bad request
-        401:
+        '401':
           description: Unauthorized
-        500:
+        '500':
           description: Server error
       x-source:
         file: /Users/edwardc/Projects/amp-backend/app.py
         function: approve_rlhf_policy
-        line: 11595
+        line: 17966
       x-audience: public
       parameters:
-        -
-          name: agent_name
-          in: path
-          required: true
-          schema:
-            type: string
+      - name: agent_name
+        in: path
+        required: true
+        schema:
+          type: string
       security:
-        -
-          ApiKeyAuth:
-            []
-        -
-          SessionToken:
-            []
+      - ApiKeyAuth: []
+      - SessionToken: []
+  /api/agent/{agent_name}/training-data/clear:
+    post:
+      summary: Clear Agent Training Data
+      description: Reset RLHF training data for an agent to stage 1 (keep active model)
+        or stage 0 (retire model).
+      operationId: post_clear_agent_training_data_api_agent_agent_name_training_data_clear
+      tags:
+      - Agent Lifecycle
+      responses:
+        '200':
+          description: Success
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '500':
+          description: Server error
+      x-source:
+        file: /Users/edwardc/Projects/amp-backend/app.py
+        function: clear_agent_training_data
+        line: 17752
+      x-audience: public
+      parameters:
+      - name: agent_name
+        in: path
+        required: true
+        schema:
+          type: string
+      security:
+      - ApiKeyAuth: []
+      - SessionToken: []
   /api/agents:
     get:
       summary: Get Agents
-      description: Return parsed records for the requested month/year; defaults to current.
+      description: Return parsed records for the requested window; supports ?days=N
+        (new) or ?month/year (legacy).
       operationId: get_get_agents_api_agents
       tags:
-        - Agent Lifecycle
+      - Agent Lifecycle
       responses:
-        200:
+        '200':
           description: Success
-        400:
+        '400':
           description: Bad request
-        401:
+        '401':
           description: Unauthorized
-        500:
+        '500':
           description: Server error
       x-source:
         file: /Users/edwardc/Projects/amp-backend/app.py
         function: get_agents
-        line: 4805
+        line: 6958
       x-audience: public
       security:
-        -
-          ApiKeyAuth:
-            []
-        -
-          SessionToken:
-            []
+      - ApiKeyAuth: []
+      - SessionToken: []
+  /api/agents/{agent_name}/summary:
+    get:
+      summary: Get Agent Summary
+      description: "Lightweight per-agent activity summary for Quick Start Journey's\
+        \ Verify step.\n\nNo existing endpoint scopes activity/HITL counts to a single\
+        \ agent (Agent Log,\nWorktray, and AgentPage.js are all org- or user-scoped)\
+        \ \u2014 this is the small,\nadditive gap the QSJ design doc (docs/QSJ.md\
+        \ #10) called out."
+      operationId: get_get_agent_summary_api_agents_agent_name_summary
+      tags:
+      - Agent Lifecycle
+      responses:
+        '200':
+          description: Success
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '500':
+          description: Server error
+      x-source:
+        file: /Users/edwardc/Projects/amp-backend/app.py
+        function: get_agent_summary
+        line: 16321
+      x-audience: public
+      parameters:
+      - name: agent_name
+        in: path
+        required: true
+        schema:
+          type: string
+      security:
+      - ApiKeyAuth: []
+      - SessionToken: []
   /api/agents/{instance_id}/llm_trace:
     get:
       summary: Get LLM Trace
       description: Return the closest LLM trace entry for an instance and timestamp.
       operationId: get_get_llm_trace_api_agents_instance_id_llm_trace
       tags:
-        - Agent Lifecycle
+      - Agent Lifecycle
       responses:
-        200:
+        '200':
           description: Success
-        400:
+        '400':
           description: Bad request
-        401:
+        '401':
           description: Unauthorized
-        500:
+        '500':
           description: Server error
       x-source:
         file: /Users/edwardc/Projects/amp-backend/app.py
         function: get_llm_trace
-        line: 4974
+        line: 7192
       x-audience: public
       parameters:
-        -
-          name: instance_id
-          in: path
-          required: true
-          schema:
-            type: string
+      - name: instance_id
+        in: path
+        required: true
+        schema:
+          type: string
       security:
-        -
-          ApiKeyAuth:
-            []
-        -
-          SessionToken:
-            []
+      - ApiKeyAuth: []
+      - SessionToken: []
+    post:
+      summary: Save LLM Trace
+      description: 'Append an LLM call trace entry for an instance.
+
+
+        Written by the calling agent/plugin itself right after an LLM call
+
+        completes (contrast with the GET route above, which is read by a
+
+        logged-in human via the frontend). Uses the same instance_id -> agent_name
+
+        -> filesystem path resolution as GET so both agree on where the file
+
+        lives -- see _split_instance_id / _resolve_org_agent_root above.'
+      operationId: post_save_llm_trace_api_agents_instance_id_llm_trace
+      tags:
+      - Agent Lifecycle
+      responses:
+        '200':
+          description: Success
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '500':
+          description: Server error
+      x-source:
+        file: /Users/edwardc/Projects/amp-backend/app.py
+        function: save_llm_trace
+        line: 7389
+      x-audience: public
+      parameters:
+      - name: instance_id
+        in: path
+        required: true
+        schema:
+          type: string
+      security:
+      - ApiKeyAuth: []
+      - SessionToken: []
   /api/alp/agents:
     get:
       summary: Alp List Agents
-      description: "List available ALP agents from AGENT_ROOT.\n\nAn agent is any directory under AGENT_ROOT that contains a config.json.\nReturns objects with { name, long_name, description }."
+      description: 'List available ALP agents from AGENT_ROOT.
+
+
+        An agent is any directory under AGENT_ROOT that contains a config.json.
+
+        Returns objects with { name, long_name, description }.'
       operationId: get_alp_list_agents_api_alp_agents
       tags:
-        - Agent Lifecycle
+      - Agent Lifecycle
       responses:
-        200:
+        '200':
           description: Success
-        400:
+        '400':
           description: Bad request
-        401:
+        '401':
           description: Unauthorized
-        500:
+        '500':
           description: Server error
       x-source:
         file: /Users/edwardc/Projects/amp-backend/app.py
         function: alp_list_agents
-        line: 9129
+        line: 15092
       x-audience: public
       security:
-        -
-          ApiKeyAuth:
-            []
-        -
-          SessionToken:
-            []
+      - ApiKeyAuth: []
+      - SessionToken: []
   /api/alp/agents/register-native:
     post:
       summary: Register Native Agent
-      description: "Register a native agent: adds entry to org's config.json and creates agent directory.\n\nBody:\n    long_name: Display name for the agent (required)\n    name: Agent slug/folder name (required, lowercase letters, numbers, hyphens)\n    description: Agent description (optional)\n    status: Agent status (optional, default \"active\")\n\nReturns:\n    JSON with registered agent info, or 409 if name already taken"
+      description: "Register a native agent: adds entry to org's config.json and creates\
+        \ agent directory.\n\nBody:\n    long_name: Display name for the agent (required)\n\
+        \    name: Agent slug/folder name (required, lowercase letters, numbers, hyphens)\n\
+        \    description: Agent description (optional)\n    status: Agent status (optional,\
+        \ default \"active\")\n\nReturns:\n    JSON with registered agent info, or\
+        \ 409 if name already taken"
       operationId: post_register_native_agent_api_alp_agents_register_native
       tags:
-        - Agent Lifecycle
+      - Agent Lifecycle
       responses:
-        200:
+        '200':
           description: Success
-        400:
+        '400':
           description: Bad request
-        401:
+        '401':
           description: Unauthorized
-        500:
+        '500':
           description: Server error
       x-source:
         file: /Users/edwardc/Projects/amp-backend/app.py
         function: register_native_agent
-        line: 5522
+        line: 8377
       x-audience: public
       security:
-        -
-          ApiKeyAuth:
-            []
-        -
-          SessionToken:
-            []
+      - ApiKeyAuth: []
+      - SessionToken: []
+  /api/alp/agents/{name}:
+    delete:
+      summary: Delete Native Agent
+      description: Hard-delete a native agent and its on-disk folder (owner or admin
+        only, irreversible).
+      operationId: delete_delete_native_agent_api_alp_agents_name
+      tags:
+      - Agent Lifecycle
+      responses:
+        '200':
+          description: Success
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '500':
+          description: Server error
+      x-source:
+        file: /Users/edwardc/Projects/amp-backend/app.py
+        function: delete_native_agent
+        line: 8542
+      x-audience: public
+      parameters:
+      - name: name
+        in: path
+        required: true
+        schema:
+          type: string
+      security:
+      - ApiKeyAuth: []
+      - SessionToken: []
   /api/alp/agents/{name}/defaults:
     get:
       summary: Alp Get Defaults
       description: Return agent-level default config and prompt.
       operationId: get_alp_get_defaults_api_alp_agents_name_defaults
       tags:
-        - Agent Lifecycle
+      - Agent Lifecycle
       responses:
-        200:
+        '200':
           description: Success
-        400:
+        '400':
           description: Bad request
-        401:
+        '401':
           description: Unauthorized
-        500:
+        '500':
           description: Server error
       x-source:
         file: /Users/edwardc/Projects/amp-backend/app.py
         function: alp_get_defaults
-        line: 9793
+        line: 15774
       x-audience: public
       parameters:
-        -
-          name: name
-          in: path
-          required: true
-          schema:
-            type: string
+      - name: name
+        in: path
+        required: true
+        schema:
+          type: string
       security:
-        -
-          ApiKeyAuth:
-            []
-        -
-          SessionToken:
-            []
+      - ApiKeyAuth: []
+      - SessionToken: []
   /api/alp/agents/{name}/defaults/artifacts:
     get:
       summary: Alp List Default Artifacts
       description: List artifact files stored at the agent root (template artifacts).
       operationId: get_alp_list_default_artifacts_api_alp_agents_name_defaults_artifacts
       tags:
-        - Agent Lifecycle
+      - Agent Lifecycle
       responses:
-        200:
+        '200':
           description: Success
-        400:
+        '400':
           description: Bad request
-        401:
+        '401':
           description: Unauthorized
-        500:
+        '500':
           description: Server error
       x-source:
         file: /Users/edwardc/Projects/amp-backend/app.py
         function: alp_list_default_artifacts
-        line: 9702
+        line: 15681
       x-audience: public
       parameters:
-        -
-          name: name
-          in: path
-          required: true
-          schema:
-            type: string
+      - name: name
+        in: path
+        required: true
+        schema:
+          type: string
       security:
-        -
-          ApiKeyAuth:
-            []
-        -
-          SessionToken:
-            []
+      - ApiKeyAuth: []
+      - SessionToken: []
   /api/alp/agents/{name}/defaults/artifacts/{filename}:
     get:
       summary: Alp Get Default Artifact
       description: Serve agent-level (template) artifacts.
       operationId: get_alp_get_default_artifact_api_alp_agents_name_defaults_artifacts_filename
       tags:
-        - Agent Lifecycle
+      - Agent Lifecycle
       responses:
-        200:
+        '200':
           description: Success
-        400:
+        '400':
           description: Bad request
-        401:
+        '401':
           description: Unauthorized
-        500:
+        '500':
           description: Server error
       x-source:
         file: /Users/edwardc/Projects/amp-backend/app.py
         function: alp_get_default_artifact
-        line: 9735
+        line: 15714
       x-audience: public
       parameters:
-        -
-          name: name
-          in: path
-          required: true
-          schema:
-            type: string
-        -
-          name: filename
-          in: path
-          required: true
-          schema:
-            type: string
+      - name: name
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: filename
+        in: path
+        required: true
+        schema:
+          type: string
       security:
-        -
-          ApiKeyAuth:
-            []
-        -
-          SessionToken:
-            []
+      - ApiKeyAuth: []
+      - SessionToken: []
   /api/alp/agents/{name}/defaults/config:
     post:
       summary: Alp Update Defaults Config
       description: Persist agent-level default config.json.
       operationId: post_alp_update_defaults_config_api_alp_agents_name_defaults_config
       tags:
-        - Agent Lifecycle
+      - Agent Lifecycle
       responses:
-        200:
+        '200':
           description: Success
-        400:
+        '400':
           description: Bad request
-        401:
+        '401':
           description: Unauthorized
-        500:
+        '500':
           description: Server error
       x-source:
         file: /Users/edwardc/Projects/amp-backend/app.py
         function: alp_update_defaults_config
-        line: 9823
+        line: 15804
       x-audience: public
       parameters:
-        -
-          name: name
-          in: path
-          required: true
-          schema:
-            type: string
+      - name: name
+        in: path
+        required: true
+        schema:
+          type: string
       security:
-        -
-          ApiKeyAuth:
-            []
-        -
-          SessionToken:
-            []
+      - ApiKeyAuth: []
+      - SessionToken: []
   /api/alp/agents/{name}/defaults/prompt:
     post:
       summary: Alp Update Defaults Prompt
       description: Persist agent-level default prompt.txt.
       operationId: post_alp_update_defaults_prompt_api_alp_agents_name_defaults_prompt
       tags:
-        - Agent Lifecycle
+      - Agent Lifecycle
       responses:
-        200:
+        '200':
           description: Success
-        400:
+        '400':
           description: Bad request
-        401:
+        '401':
           description: Unauthorized
-        500:
+        '500':
           description: Server error
       x-source:
         file: /Users/edwardc/Projects/amp-backend/app.py
         function: alp_update_defaults_prompt
-        line: 9847
+        line: 15828
       x-audience: public
       parameters:
-        -
-          name: name
-          in: path
-          required: true
-          schema:
-            type: string
+      - name: name
+        in: path
+        required: true
+        schema:
+          type: string
       security:
-        -
-          ApiKeyAuth:
-            []
-        -
-          SessionToken:
-            []
+      - ApiKeyAuth: []
+      - SessionToken: []
+  /api/alp/agents/{name}/description:
+    patch:
+      summary: Update Native Agent Description
+      description: Update a native agent's description (owner or admin only).
+      operationId: patch_update_native_agent_description_api_alp_agents_name_description
+      tags:
+      - Agent Lifecycle
+      responses:
+        '200':
+          description: Success
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '500':
+          description: Server error
+      x-source:
+        file: /Users/edwardc/Projects/amp-backend/app.py
+        function: update_native_agent_description
+        line: 8522
+      x-audience: public
+      parameters:
+      - name: name
+        in: path
+        required: true
+        schema:
+          type: string
+      security:
+      - ApiKeyAuth: []
+      - SessionToken: []
   /api/alp/agents/{name}/instances:
     get:
       summary: Alp List Instances
-      description: List ALP instances for a given agent by reading its subfolders with meta.json.
+      description: List ALP instances for a given agent by reading its subfolders
+        with meta.json.
       operationId: get_alp_list_instances_api_alp_agents_name_instances
       tags:
-        - Agent Lifecycle
+      - Agent Lifecycle
       responses:
-        200:
+        '200':
           description: Success
-        400:
+        '400':
           description: Bad request
-        401:
+        '401':
           description: Unauthorized
-        500:
+        '500':
           description: Server error
       x-source:
         file: /Users/edwardc/Projects/amp-backend/app.py
         function: alp_list_instances
-        line: 9155
+        line: 15118
       x-audience: public
       parameters:
-        -
-          name: name
-          in: path
-          required: true
-          schema:
-            type: string
+      - name: name
+        in: path
+        required: true
+        schema:
+          type: string
       security:
-        -
-          ApiKeyAuth:
-            []
-        -
-          SessionToken:
-            []
+      - ApiKeyAuth: []
+      - SessionToken: []
   /api/alp/agents/{name}/instances/{instance_id}:
     delete:
       summary: Alp Delete Instance
-      description: "Delete an ALP instance directory recursively.\n\nReturns 200 with { deleted: true } on success. If the instance directory\nis missing, returns 200 with { deleted: false, missing: true } for idempotency."
+      description: 'Delete an ALP instance directory recursively.
+
+
+        Returns 200 with { deleted: true } on success. If the instance directory
+
+        is missing, returns 200 with { deleted: false, missing: true } for idempotency.'
       operationId: delete_alp_delete_instance_api_alp_agents_name_instances_instance_id
       tags:
-        - Agent Lifecycle
+      - Agent Lifecycle
       responses:
-        200:
+        '200':
           description: Success
-        400:
+        '400':
           description: Bad request
-        401:
+        '401':
           description: Unauthorized
-        500:
+        '500':
           description: Server error
       x-source:
         file: /Users/edwardc/Projects/amp-backend/app.py
         function: alp_delete_instance
-        line: 9771
+        line: 15750
       x-audience: public
       parameters:
-        -
-          name: name
-          in: path
-          required: true
-          schema:
-            type: string
-        -
-          name: instance_id
-          in: path
-          required: true
-          schema:
-            type: string
+      - name: name
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: instance_id
+        in: path
+        required: true
+        schema:
+          type: string
       security:
-        -
-          ApiKeyAuth:
-            []
-        -
-          SessionToken:
-            []
+      - ApiKeyAuth: []
+      - SessionToken: []
     get:
       summary: Alp Get Instance
-      description: "Return meta, config, and prompt for a specific instance. Falls back to agent defaults when missing."
+      description: Return meta, config, and prompt for a specific instance. Falls
+        back to agent defaults when missing.
       operationId: get_alp_get_instance_api_alp_agents_name_instances_instance_id
       tags:
-        - Agent Lifecycle
+      - Agent Lifecycle
       responses:
-        200:
+        '200':
           description: Success
-        400:
+        '400':
           description: Bad request
-        401:
+        '401':
           description: Unauthorized
-        500:
+        '500':
           description: Server error
       x-source:
         file: /Users/edwardc/Projects/amp-backend/app.py
         function: alp_get_instance
-        line: 9490
+        line: 15469
       x-audience: public
       parameters:
-        -
-          name: name
-          in: path
-          required: true
-          schema:
-            type: string
-        -
-          name: instance_id
-          in: path
-          required: true
-          schema:
-            type: string
+      - name: name
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: instance_id
+        in: path
+        required: true
+        schema:
+          type: string
       security:
-        -
-          ApiKeyAuth:
-            []
-        -
-          SessionToken:
-            []
+      - ApiKeyAuth: []
+      - SessionToken: []
   /api/alp/agents/{name}/instances/{instance_id}/abort:
     post:
       summary: Alp Abort Instance
-      description: "Send abort signal to agent instance and log the event.\n\nDirect mode only:\n- Call agent API immediately."
+      description: 'Send abort signal to agent instance and log the event.
+
+
+        Direct mode only:
+
+        - Call agent API immediately.'
       operationId: post_alp_abort_instance_api_alp_agents_name_instances_instance_id_abort
       tags:
-        - Agent Lifecycle
+      - Agent Lifecycle
       responses:
-        200:
+        '200':
           description: Success
-        400:
+        '400':
           description: Bad request
-        401:
+        '401':
           description: Unauthorized
-        500:
+        '500':
           description: Server error
       x-source:
         file: /Users/edwardc/Projects/amp-backend/app.py
         function: alp_abort_instance
-        line: 13797
+        line: 20833
       x-audience: public
       parameters:
-        -
-          name: name
-          in: path
-          required: true
-          schema:
-            type: string
-        -
-          name: instance_id
-          in: path
-          required: true
-          schema:
-            type: string
+      - name: name
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: instance_id
+        in: path
+        required: true
+        schema:
+          type: string
       security:
-        -
-          ApiKeyAuth:
-            []
-        -
-          SessionToken:
-            []
+      - ApiKeyAuth: []
+      - SessionToken: []
   /api/alp/agents/{name}/instances/{instance_id}/artifacts:
     get:
       summary: Alp List Artifacts
-      description: "List artifact files under an instance's artifacts directory.\n\nReturns a list of { name, size, mtime, ext, content_type }."
+      description: 'List artifact files under an instance''s artifacts directory.
+
+
+        Returns a list of { name, size, mtime, ext, content_type }.'
       operationId: get_alp_list_artifacts_api_alp_agents_name_instances_instance_id_artifacts
       tags:
-        - Agent Lifecycle
+      - Agent Lifecycle
       responses:
-        200:
+        '200':
           description: Success
-        400:
+        '400':
           description: Bad request
-        401:
+        '401':
           description: Unauthorized
-        500:
+        '500':
           description: Server error
       x-source:
         file: /Users/edwardc/Projects/amp-backend/app.py
         function: alp_list_artifacts
-        line: 9654
+        line: 15633
       x-audience: public
       parameters:
-        -
-          name: name
-          in: path
-          required: true
-          schema:
-            type: string
-        -
-          name: instance_id
-          in: path
-          required: true
-          schema:
-            type: string
+      - name: name
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: instance_id
+        in: path
+        required: true
+        schema:
+          type: string
       security:
-        -
-          ApiKeyAuth:
-            []
-        -
-          SessionToken:
-            []
+      - ApiKeyAuth: []
+      - SessionToken: []
   /api/alp/agents/{name}/instances/{instance_id}/artifacts/{filename}:
     post:
       summary: Upload Artifact
-      description: "Upload an artifact file from remote agent.\n\nBody: raw file data\nRemote agents use this to upload output files (results, reports, etc.)"
+      description: 'Upload an artifact file from remote agent.
+
+
+        Body: raw file data
+
+        Remote agents use this to upload output files (results, reports, etc.)'
       operationId: post_upload_artifact_api_alp_agents_name_instances_instance_id_artifacts_filename
       tags:
-        - Agent Lifecycle
+      - Agent Lifecycle
       responses:
-        200:
+        '200':
           description: Success
-        400:
+        '400':
           description: Bad request
-        401:
+        '401':
           description: Unauthorized
-        500:
+        '500':
           description: Server error
       x-source:
         file: /Users/edwardc/Projects/amp-backend/app.py
         function: upload_artifact
-        line: 10571
+        line: 16653
       x-audience: public
       parameters:
-        -
-          name: name
-          in: path
-          required: true
-          schema:
-            type: string
-        -
-          name: instance_id
-          in: path
-          required: true
-          schema:
-            type: string
-        -
-          name: filename
-          in: path
-          required: true
-          schema:
-            type: string
+      - name: name
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: instance_id
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: filename
+        in: path
+        required: true
+        schema:
+          type: string
       security:
-        -
-          ApiKeyAuth:
-            []
-        -
-          SessionToken:
-            []
+      - ApiKeyAuth: []
+      - SessionToken: []
     get:
       summary: Alp Get Artifact
-      description: Serve an artifact file inline when possible (browser decides how to open).
+      description: Serve an artifact file inline when possible (browser decides how
+        to open).
       operationId: get_alp_get_artifact_api_alp_agents_name_instances_instance_id_artifacts_filename
       tags:
-        - Agent Lifecycle
+      - Agent Lifecycle
       responses:
-        200:
+        '200':
           description: Success
-        400:
+        '400':
           description: Bad request
-        401:
+        '401':
           description: Unauthorized
-        500:
+        '500':
           description: Server error
       x-source:
         file: /Users/edwardc/Projects/amp-backend/app.py
         function: alp_get_artifact
-        line: 9752
+        line: 15731
       x-audience: public
       parameters:
-        -
-          name: name
-          in: path
-          required: true
-          schema:
-            type: string
-        -
-          name: instance_id
-          in: path
-          required: true
-          schema:
-            type: string
-        -
-          name: filename
-          in: path
-          required: true
-          schema:
-            type: string
+      - name: name
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: instance_id
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: filename
+        in: path
+        required: true
+        schema:
+          type: string
       security:
-        -
-          ApiKeyAuth:
-            []
-        -
-          SessionToken:
-            []
+      - ApiKeyAuth: []
+      - SessionToken: []
   /api/alp/agents/{name}/instances/{instance_id}/chat:
     delete:
       summary: Alp Instance Chat
       description: Chat with the LLM configured for this agent instance.
       operationId: delete_alp_instance_chat_api_alp_agents_name_instances_instance_id_chat
-      tags:
-        - Agent Lifecycle
+      tags: &id002
+      - Agent Lifecycle
       responses:
-        200:
+        '200':
           description: Success
-        400:
+        '400':
           description: Bad request
-        401:
+        '401':
           description: Unauthorized
-        500:
+        '500':
           description: Server error
       x-source:
         file: /Users/edwardc/Projects/amp-backend/app.py
         function: alp_instance_chat
-        line: 9552
+        line: 15531
       x-audience: public
-      parameters:
-        -
-          name: name
-          in: path
-          required: true
-          schema:
-            type: string
-        -
-          name: instance_id
-          in: path
-          required: true
-          schema:
-            type: string
+      parameters: &id003
+      - name: name
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: instance_id
+        in: path
+        required: true
+        schema:
+          type: string
       security:
-        -
-          ApiKeyAuth:
-            []
-        -
-          SessionToken:
-            []
+      - ApiKeyAuth: []
+      - SessionToken: []
     get:
       summary: Alp Instance Chat
       description: Chat with the LLM configured for this agent instance.
       operationId: get_alp_instance_chat_api_alp_agents_name_instances_instance_id_chat
-      tags:
-        - Agent Lifecycle
+      tags: *id002
       responses:
-        200:
+        '200':
           description: Success
-        400:
+        '400':
           description: Bad request
-        401:
+        '401':
           description: Unauthorized
-        500:
+        '500':
           description: Server error
       x-source:
         file: /Users/edwardc/Projects/amp-backend/app.py
         function: alp_instance_chat
-        line: 9552
+        line: 15531
       x-audience: public
-      parameters:
-        -
-          name: name
-          in: path
-          required: true
-          schema:
-            type: string
-        -
-          name: instance_id
-          in: path
-          required: true
-          schema:
-            type: string
+      parameters: *id003
       security:
-        -
-          ApiKeyAuth:
-            []
-        -
-          SessionToken:
-            []
+      - ApiKeyAuth: []
+      - SessionToken: []
     post:
       summary: Alp Instance Chat
       description: Chat with the LLM configured for this agent instance.
       operationId: post_alp_instance_chat_api_alp_agents_name_instances_instance_id_chat
-      tags:
-        - Agent Lifecycle
+      tags: *id002
       responses:
-        200:
+        '200':
           description: Success
-        400:
+        '400':
           description: Bad request
-        401:
+        '401':
           description: Unauthorized
-        500:
+        '500':
           description: Server error
       x-source:
         file: /Users/edwardc/Projects/amp-backend/app.py
         function: alp_instance_chat
-        line: 9552
+        line: 15531
       x-audience: public
-      parameters:
-        -
-          name: name
-          in: path
-          required: true
-          schema:
-            type: string
-        -
-          name: instance_id
-          in: path
-          required: true
-          schema:
-            type: string
+      parameters: *id003
       security:
-        -
-          ApiKeyAuth:
-            []
-        -
-          SessionToken:
-            []
+      - ApiKeyAuth: []
+      - SessionToken: []
   /api/alp/agents/{name}/instances/{instance_id}/config:
     post:
       summary: Alp Update Instance Config
-      description: "Update instance config.json; allowed only before status becomes 'active'."
+      description: Update instance config.json; allowed only before status becomes
+        'active'.
       operationId: post_alp_update_instance_config_api_alp_agents_name_instances_instance_id_config
       tags:
-        - Agent Lifecycle
+      - Agent Lifecycle
       responses:
-        200:
+        '200':
           description: Success
-        400:
+        '400':
           description: Bad request
-        401:
+        '401':
           description: Unauthorized
-        500:
+        '500':
           description: Server error
       x-source:
         file: /Users/edwardc/Projects/amp-backend/app.py
         function: alp_update_instance_config
-        line: 10385
+        line: 16467
       x-audience: public
       parameters:
-        -
-          name: name
-          in: path
-          required: true
-          schema:
-            type: string
-        -
-          name: instance_id
-          in: path
-          required: true
-          schema:
-            type: string
+      - name: name
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: instance_id
+        in: path
+        required: true
+        schema:
+          type: string
       security:
-        -
-          ApiKeyAuth:
-            []
-        -
-          SessionToken:
-            []
+      - ApiKeyAuth: []
+      - SessionToken: []
   /api/alp/agents/{name}/instances/{instance_id}/execute:
     post:
       summary: Alp Execute Instance
       description: Proxy endpoint to execute agent actions securely.
       operationId: post_alp_execute_instance_api_alp_agents_name_instances_instance_id_execute
       tags:
-        - Agent Lifecycle
+      - Agent Lifecycle
       responses:
-        200:
+        '200':
           description: Success
-        400:
+        '400':
           description: Bad request
-        401:
+        '401':
           description: Unauthorized
-        500:
+        '500':
           description: Server error
       x-source:
         file: /Users/edwardc/Projects/amp-backend/app.py
         function: alp_execute_instance
-        line: 11149
+        line: 17240
       x-audience: public
       parameters:
-        -
-          name: name
-          in: path
-          required: true
-          schema:
-            type: string
-        -
-          name: instance_id
-          in: path
-          required: true
-          schema:
-            type: string
+      - name: name
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: instance_id
+        in: path
+        required: true
+        schema:
+          type: string
       security:
-        -
-          ApiKeyAuth:
-            []
-        -
-          SessionToken:
-            []
+      - ApiKeyAuth: []
+      - SessionToken: []
   /api/alp/agents/{name}/instances/{instance_id}/files:
     get:
       summary: Get Instance Files
-      description: "Get all instance files for remote agent.\n\nReturns config.json, prompt.txt, and meta.json.\nThis endpoint is used by remote agents to download their instance files."
+      description: 'Get all instance files for remote agent.
+
+
+        Returns config.json, prompt.txt, and meta.json.
+
+        This endpoint is used by remote agents to download their instance files.'
       operationId: get_get_instance_files_api_alp_agents_name_instances_instance_id_files
       tags:
-        - Agent Lifecycle
+      - Agent Lifecycle
       responses:
-        200:
+        '200':
           description: Success
-        400:
+        '400':
           description: Bad request
-        401:
+        '401':
           description: Unauthorized
-        500:
+        '500':
           description: Server error
       x-source:
         file: /Users/edwardc/Projects/amp-backend/app.py
         function: get_instance_files
-        line: 10437
+        line: 16519
       x-audience: public
       parameters:
-        -
-          name: name
-          in: path
-          required: true
-          schema:
-            type: string
-        -
-          name: instance_id
-          in: path
-          required: true
-          schema:
-            type: string
+      - name: name
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: instance_id
+        in: path
+        required: true
+        schema:
+          type: string
       security:
-        -
-          ApiKeyAuth:
-            []
-        -
-          SessionToken:
-            []
+      - ApiKeyAuth: []
+      - SessionToken: []
   /api/alp/agents/{name}/instances/{instance_id}/hitl-callback:
     post:
       summary: HITL Callback Remote Legacy
-      description: "Deprecated alias for /api/hitl/agents/<name>/instances/<instance_id>/callback."
+      description: Deprecated alias for /api/hitl/agents/<name>/instances/<instance_id>/callback.
       operationId: post_hitl_callback_remote_legacy_api_alp_agents_name_instances_instance_id_hitl_callback
       tags:
-        - Agent Lifecycle
+      - Agent Lifecycle
       responses:
-        200:
+        '200':
           description: Success
-        400:
+        '400':
           description: Bad request
-        401:
+        '401':
           description: Unauthorized
-        500:
+        '500':
           description: Server error
       x-source:
         file: /Users/edwardc/Projects/amp-backend/app.py
         function: hitl_callback_remote_legacy
-        line: 6492
+        line: 10318
       x-audience: public
       parameters:
-        -
-          name: name
-          in: path
-          required: true
-          schema:
-            type: string
-        -
-          name: instance_id
-          in: path
-          required: true
-          schema:
-            type: string
+      - name: name
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: instance_id
+        in: path
+        required: true
+        schema:
+          type: string
       security:
-        -
-          ApiKeyAuth:
-            []
-        -
-          SessionToken:
-            []
+      - ApiKeyAuth: []
+      - SessionToken: []
   /api/alp/agents/{name}/instances/{instance_id}/launch:
     post:
       summary: Alp Launch Instance
-      description: "Transition an ALP instance from 'initiated' to 'active'.\n\nDirect mode only:\n- Call agent API immediately."
+      description: 'Transition an ALP instance from ''initiated'' to ''active''.
+
+
+        Direct mode only:
+
+        - Call agent API immediately.'
       operationId: post_alp_launch_instance_api_alp_agents_name_instances_instance_id_launch
       tags:
-        - Agent Lifecycle
+      - Agent Lifecycle
       responses:
-        200:
+        '200':
           description: Success
-        400:
+        '400':
           description: Bad request
-        401:
+        '401':
           description: Unauthorized
-        500:
+        '500':
           description: Server error
       x-source:
         file: /Users/edwardc/Projects/amp-backend/app.py
         function: alp_launch_instance
-        line: 10605
+        line: 16687
       x-audience: public
       parameters:
-        -
-          name: name
-          in: path
-          required: true
-          schema:
-            type: string
-        -
-          name: instance_id
-          in: path
-          required: true
-          schema:
-            type: string
+      - name: name
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: instance_id
+        in: path
+        required: true
+        schema:
+          type: string
       security:
-        -
-          ApiKeyAuth:
-            []
-        -
-          SessionToken:
-            []
+      - ApiKeyAuth: []
+      - SessionToken: []
   /api/alp/agents/{name}/instances/{instance_id}/log_initiated:
     post:
       summary: Alp Log Initiated
-      description: "Append a 'state - initiated' entry for a specific ALP instance.\n\n- Validates the instance directory exists for the agent.\n- Updates the instance's meta.json status to 'initiated' and sets owner to current username.\n- Appends a state change log line to the current month AMP logfile."
+      description: 'Append a ''state - initiated'' entry for a specific ALP instance.
+
+
+        - Validates the instance directory exists for the agent.
+
+        - Updates the instance''s meta.json status to ''initiated'' and sets owner
+        to current username.
+
+        - Appends a state change log line to the current month AMP logfile.'
       operationId: post_alp_log_initiated_api_alp_agents_name_instances_instance_id_log_initiated
       tags:
-        - Agent Lifecycle
+      - Agent Lifecycle
       responses:
-        200:
+        '200':
           description: Success
-        400:
+        '400':
           description: Bad request
-        401:
+        '401':
           description: Unauthorized
-        500:
+        '500':
           description: Server error
       x-source:
         file: /Users/edwardc/Projects/amp-backend/app.py
         function: alp_log_initiated
-        line: 10655
+        line: 16737
       x-audience: public
       parameters:
-        -
-          name: name
-          in: path
-          required: true
-          schema:
-            type: string
-        -
-          name: instance_id
-          in: path
-          required: true
-          schema:
-            type: string
+      - name: name
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: instance_id
+        in: path
+        required: true
+        schema:
+          type: string
       security:
-        -
-          ApiKeyAuth:
-            []
-        -
-          SessionToken:
-            []
+      - ApiKeyAuth: []
+      - SessionToken: []
   /api/alp/agents/{name}/instances/{instance_id}/meta:
     put:
       summary: Update Instance Meta
-      description: "Update meta.json for remote agent.\n\nBody should be a partial or full meta.json object.\nRemote agents use this to update status, timestamps, etc."
+      description: 'Update meta.json for remote agent.
+
+
+        Body should be a partial or full meta.json object.
+
+        Remote agents use this to update status, timestamps, etc.'
       operationId: put_update_instance_meta_api_alp_agents_name_instances_instance_id_meta
       tags:
-        - Agent Lifecycle
+      - Agent Lifecycle
       responses:
-        200:
+        '200':
           description: Success
-        400:
+        '400':
           description: Bad request
-        401:
+        '401':
           description: Unauthorized
-        500:
+        '500':
           description: Server error
       x-source:
         file: /Users/edwardc/Projects/amp-backend/app.py
         function: update_instance_meta
-        line: 10475
+        line: 16557
       x-audience: public
       parameters:
-        -
-          name: name
-          in: path
-          required: true
-          schema:
-            type: string
-        -
-          name: instance_id
-          in: path
-          required: true
-          schema:
-            type: string
+      - name: name
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: instance_id
+        in: path
+        required: true
+        schema:
+          type: string
       security:
-        -
-          ApiKeyAuth:
-            []
-        -
-          SessionToken:
-            []
+      - ApiKeyAuth: []
+      - SessionToken: []
   /api/alp/agents/{name}/instances/{instance_id}/progress:
     post:
       summary: Append Instance Progress
-      description: "Append a progress entry to meta.json.\n\nBody: {\"message\": \"Processing...\"}\nRemote agents use this to report progress to the UI."
+      description: 'Append a progress entry to meta.json.
+
+
+        Body: {"message": "Processing..."}
+
+        Remote agents use this to report progress to the UI.'
       operationId: post_append_instance_progress_api_alp_agents_name_instances_instance_id_progress
       tags:
-        - Agent Lifecycle
+      - Agent Lifecycle
       responses:
-        200:
+        '200':
           description: Success
-        400:
+        '400':
           description: Bad request
-        401:
+        '401':
           description: Unauthorized
-        500:
+        '500':
           description: Server error
       x-source:
         file: /Users/edwardc/Projects/amp-backend/app.py
         function: append_instance_progress
-        line: 10532
+        line: 16614
       x-audience: public
       parameters:
-        -
-          name: name
-          in: path
-          required: true
-          schema:
-            type: string
-        -
-          name: instance_id
-          in: path
-          required: true
-          schema:
-            type: string
+      - name: name
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: instance_id
+        in: path
+        required: true
+        schema:
+          type: string
       security:
-        -
-          ApiKeyAuth:
-            []
-        -
-          SessionToken:
-            []
+      - ApiKeyAuth: []
+      - SessionToken: []
   /api/alp/agents/{name}/instances/{instance_id}/prompt:
     post:
       summary: Alp Update Instance Prompt
-      description: "Update instance prompt.txt; allowed only before status becomes 'active'."
+      description: Update instance prompt.txt; allowed only before status becomes
+        'active'.
       operationId: post_alp_update_instance_prompt_api_alp_agents_name_instances_instance_id_prompt
       tags:
-        - Agent Lifecycle
+      - Agent Lifecycle
       responses:
-        200:
+        '200':
           description: Success
-        400:
+        '400':
           description: Bad request
-        401:
+        '401':
           description: Unauthorized
-        500:
+        '500':
           description: Server error
       x-source:
         file: /Users/edwardc/Projects/amp-backend/app.py
         function: alp_update_instance_prompt
-        line: 10410
+        line: 16492
       x-audience: public
       parameters:
-        -
-          name: name
-          in: path
-          required: true
-          schema:
-            type: string
-        -
-          name: instance_id
-          in: path
-          required: true
-          schema:
-            type: string
+      - name: name
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: instance_id
+        in: path
+        required: true
+        schema:
+          type: string
       security:
-        -
-          ApiKeyAuth:
-            []
-        -
-          SessionToken:
-            []
+      - ApiKeyAuth: []
+      - SessionToken: []
   /api/alp/agents/{name}/instances/{instance_id}/summary:
     get:
       summary: Alp Get Instance Summary
-      description: "Return the contents of summary.txt for an instance, if present."
+      description: Return the contents of summary.txt for an instance, if present.
       operationId: get_alp_get_instance_summary_api_alp_agents_name_instances_instance_id_summary
       tags:
-        - Agent Lifecycle
+      - Agent Lifecycle
       responses:
-        200:
+        '200':
           description: Success
-        400:
+        '400':
           description: Bad request
-        401:
+        '401':
           description: Unauthorized
-        500:
+        '500':
           description: Server error
       x-source:
         file: /Users/edwardc/Projects/amp-backend/app.py
         function: alp_get_instance_summary
-        line: 9453
+        line: 15432
       x-audience: public
       parameters:
-        -
-          name: name
-          in: path
-          required: true
-          schema:
-            type: string
-        -
-          name: instance_id
-          in: path
-          required: true
-          schema:
-            type: string
+      - name: name
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: instance_id
+        in: path
+        required: true
+        schema:
+          type: string
       security:
-        -
-          ApiKeyAuth:
-            []
-        -
-          SessionToken:
-            []
+      - ApiKeyAuth: []
+      - SessionToken: []
     post:
       summary: Alp Save Instance Summary
       description: Write summary.txt for an instance.
       operationId: post_alp_save_instance_summary_api_alp_agents_name_instances_instance_id_summary
       tags:
-        - Agent Lifecycle
+      - Agent Lifecycle
       responses:
-        200:
+        '200':
           description: Success
-        400:
+        '400':
           description: Bad request
-        401:
+        '401':
           description: Unauthorized
-        500:
+        '500':
           description: Server error
       x-source:
         file: /Users/edwardc/Projects/amp-backend/app.py
         function: alp_save_instance_summary
-        line: 9469
+        line: 15448
       x-audience: public
       parameters:
-        -
-          name: name
-          in: path
-          required: true
-          schema:
-            type: string
-        -
-          name: instance_id
-          in: path
-          required: true
-          schema:
-            type: string
+      - name: name
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: instance_id
+        in: path
+        required: true
+        schema:
+          type: string
       security:
-        -
-          ApiKeyAuth:
-            []
-        -
-          SessionToken:
-            []
+      - ApiKeyAuth: []
+      - SessionToken: []
+  /api/alp/agents/{name}/publish:
+    post:
+      summary: Publish Native Agent
+      description: Publish a native agent, making it visible to the whole org (owner
+        or admin only).
+      operationId: post_publish_native_agent_api_alp_agents_name_publish
+      tags:
+      - Agent Lifecycle
+      responses:
+        '200':
+          description: Success
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '500':
+          description: Server error
+      x-source:
+        file: /Users/edwardc/Projects/amp-backend/app.py
+        function: publish_native_agent
+        line: 8482
+      x-audience: public
+      parameters:
+      - name: name
+        in: path
+        required: true
+        schema:
+          type: string
+      security:
+      - ApiKeyAuth: []
+      - SessionToken: []
   /api/alp/agents/{name}/runs:
     post:
       summary: Alp Create Run
-      description: "Create a new instance folder with provided config/prompt; status 'initiated'."
+      description: Create a new instance folder with provided config/prompt; status
+        'initiated'.
       operationId: post_alp_create_run_api_alp_agents_name_runs
       tags:
-        - Agent Lifecycle
+      - Agent Lifecycle
       responses:
-        200:
+        '200':
           description: Success
-        400:
+        '400':
           description: Bad request
-        401:
+        '401':
           description: Unauthorized
-        500:
+        '500':
           description: Server error
       x-source:
         file: /Users/edwardc/Projects/amp-backend/app.py
         function: alp_create_run
-        line: 9871
+        line: 15852
       x-audience: public
       parameters:
-        -
-          name: name
-          in: path
-          required: true
-          schema:
-            type: string
+      - name: name
+        in: path
+        required: true
+        schema:
+          type: string
       security:
-        -
-          ApiKeyAuth:
-            []
-        -
-          SessionToken:
-            []
+      - ApiKeyAuth: []
+      - SessionToken: []
+  /api/alp/agents/{name}/unpublish:
+    post:
+      summary: Unpublish Native Agent
+      description: Unpublish a native agent, restricting visibility back to owner/admins.
+      operationId: post_unpublish_native_agent_api_alp_agents_name_unpublish
+      tags:
+      - Agent Lifecycle
+      responses:
+        '200':
+          description: Success
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '500':
+          description: Server error
+      x-source:
+        file: /Users/edwardc/Projects/amp-backend/app.py
+        function: unpublish_native_agent
+        line: 8502
+      x-audience: public
+      parameters:
+      - name: name
+        in: path
+        required: true
+        schema:
+          type: string
+      security:
+      - ApiKeyAuth: []
+      - SessionToken: []
   /api/analytics/agent_events:
     get:
       summary: Analytics Agent Events
-      description: "Return org-scoped agent_events rows as a JSON array.\n\nQuery params: start_date, end_date (YYYY-MM-DD; default last 30 days).\nsuperadmin may pass ?org_id= to override scope."
+      description: 'Return org-scoped per-run analytics summaries from OpenSearch.
+
+
+        Query params: start_date, end_date (YYYY-MM-DD; default last 30 days).
+
+        superadmin may pass ?org_id= to override scope.'
       operationId: get_analytics_agent_events_api_analytics_agent_events
       tags:
-        - Analytics
+      - Analytics
       responses:
-        200:
+        '200':
           description: Success
-        400:
+        '400':
           description: Bad request
-        401:
+        '401':
           description: Unauthorized
-        500:
+        '500':
           description: Server error
       x-source:
         file: /Users/edwardc/Projects/amp-backend/app.py
         function: analytics_agent_events
-        line: 8577
+        line: 13475
       x-audience: public
       security:
-        -
-          ApiKeyAuth:
-            []
-        -
-          SessionToken:
-            []
+      - ApiKeyAuth: []
+      - SessionToken: []
   /api/analytics/config:
     get:
       summary: Analytics Config
       description: Return the current analytics data source configuration.
       operationId: get_analytics_config_api_analytics_config
       tags:
-        - Analytics
+      - Analytics
       responses:
-        200:
+        '200':
           description: Success
-        400:
+        '400':
           description: Bad request
-        401:
+        '401':
           description: Unauthorized
-        500:
+        '500':
           description: Server error
       x-source:
         file: /Users/edwardc/Projects/amp-backend/app.py
         function: analytics_config
-        line: 8495
+        line: 13384
       x-audience: public
       security:
-        -
-          ApiKeyAuth:
-            []
-        -
-          SessionToken:
-            []
+      - ApiKeyAuth: []
+      - SessionToken: []
+  /api/analytics/dashboard:
+    get:
+      summary: Analytics Dashboard
+      description: "Return pre-aggregated chart-ready dashboard JSON for the requested\
+        \ filters.\n\nPorts the frontend computeDashboardData() aggregation to the\
+        \ server so the\nbrowser receives compact chart data instead of raw analytics\
+        \ rows.\n\nQuery params:\n  start_date   YYYY-MM-DD  (default: last 90 days)\n\
+        \  end_date     YYYY-MM-DD  (default: today)\n  granularity  day | week |\
+        \ month  (default: week)\n  user_id      optional \u2014 non-admin users are\
+        \ always scoped to themselves\n  agent_type   optional \u2014 may be repeated\
+        \ or comma-separated\n  run_mode     sim | prod | all  (default: all; for\
+        \ RLHF aggregation)\n  org_id       optional \u2014 superadmin only, same\
+        \ scoping rules as other endpoints"
+      operationId: get_analytics_dashboard_api_analytics_dashboard
+      tags:
+      - Analytics
+      responses:
+        '200':
+          description: Success
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '500':
+          description: Server error
+      x-source:
+        file: /Users/edwardc/Projects/amp-backend/app.py
+        function: analytics_dashboard
+        line: 14123
+      x-audience: public
+      security:
+      - ApiKeyAuth: []
+      - SessionToken: []
   /api/analytics/hitl_events:
     get:
       summary: Analytics HITL Events
-      description: "Return org-scoped hitl_events rows as a JSON array.\n\nQuery params: start_date, end_date (YYYY-MM-DD; default last 30 days).\nsuperadmin may pass ?org_id= to override scope."
+      description: 'Return org-scoped hitl_events rows as a JSON array.
+
+
+        Query params: start_date, end_date (YYYY-MM-DD; default last 30 days).
+
+        superadmin may pass ?org_id= to override scope.'
       operationId: get_analytics_hitl_events_api_analytics_hitl_events
       tags:
-        - Analytics
+      - Analytics
       responses:
-        200:
+        '200':
           description: Success
-        400:
+        '400':
           description: Bad request
-        401:
+        '401':
           description: Unauthorized
-        500:
+        '500':
           description: Server error
       x-source:
         file: /Users/edwardc/Projects/amp-backend/app.py
         function: analytics_hitl_events
-        line: 8626
+        line: 13499
       x-audience: public
       security:
-        -
-          ApiKeyAuth:
-            []
-        -
-          SessionToken:
-            []
+      - ApiKeyAuth: []
+      - SessionToken: []
   /api/analytics/page_view:
     post:
       summary: Analytics Page View
       description: Record a page view counter for the current user.
       operationId: post_analytics_page_view_api_analytics_page_view
       tags:
-        - Analytics
+      - Analytics
       responses:
-        200:
+        '200':
           description: Success
-        400:
+        '400':
           description: Bad request
-        401:
+        '401':
           description: Unauthorized
-        500:
+        '500':
           description: Server error
       x-source:
         file: /Users/edwardc/Projects/amp-backend/app.py
         function: analytics_page_view
-        line: 8504
+        line: 13393
       x-audience: public
       security:
-        -
-          ApiKeyAuth:
-            []
-        -
-          SessionToken:
-            []
+      - ApiKeyAuth: []
+      - SessionToken: []
   /api/analytics/rlhf_autonomy:
     get:
       summary: Analytics RLHF Autonomy
-      description: "Return org-scoped RLHF approval_events aggregated by date and agent.\n\nQuery params: start_date, end_date (YYYY-MM-DD; default last 90 days).\nsuperadmin may pass ?org_id= to override scope."
+      description: 'Return org-scoped RLHF approval_events aggregated by date and
+        agent.
+
+
+        Query params: start_date, end_date (YYYY-MM-DD; default last 90 days).
+
+        superadmin may pass ?org_id= to override scope.'
       operationId: get_analytics_rlhf_autonomy_api_analytics_rlhf_autonomy
       tags:
-        - Analytics
+      - Analytics
       responses:
-        200:
+        '200':
           description: Success
-        400:
+        '400':
           description: Bad request
-        401:
+        '401':
           description: Unauthorized
-        500:
+        '500':
           description: Server error
       x-source:
         file: /Users/edwardc/Projects/amp-backend/app.py
         function: analytics_rlhf_autonomy
-        line: 8716
+        line: 13589
       x-audience: public
       security:
-        -
-          ApiKeyAuth:
-            []
-        -
-          SessionToken:
-            []
+      - ApiKeyAuth: []
+      - SessionToken: []
   /api/analytics/rlhf_stages:
     get:
       summary: Analytics RLHF Stages
-      description: "Return org-scoped current autonomy stage and stage transition history.\n\nReturns: { current: [{agent_name, autonomy_stage, stage_entered_at,\n                       model_version, kill_switch_enabled}],\n           transitions: [{agent_name, from_stage, to_stage, actor_type,\n                           reason, timestamp, previous_model_version,\n                           new_model_version}] }\nsuperadmin may pass ?org_id= to override scope."
+      description: "Return org-scoped current autonomy stage and stage transition\
+        \ history.\n\nReturns: { current: [{agent_name, autonomy_stage, stage_entered_at,\n\
+        \                       model_version, kill_switch_enabled}],\n          \
+        \ transitions: [{agent_name, from_stage, to_stage, actor_type,\n         \
+        \                  reason, timestamp, previous_model_version,\n          \
+        \                 new_model_version}] }\nsuperadmin may pass ?org_id= to override\
+        \ scope."
       operationId: get_analytics_rlhf_stages_api_analytics_rlhf_stages
       tags:
-        - Analytics
+      - Analytics
       responses:
-        200:
+        '200':
           description: Success
-        400:
+        '400':
           description: Bad request
-        401:
+        '401':
           description: Unauthorized
-        500:
+        '500':
           description: Server error
       x-source:
         file: /Users/edwardc/Projects/amp-backend/app.py
         function: analytics_rlhf_stages
-        line: 8778
+        line: 13651
       x-audience: public
       security:
-        -
-          ApiKeyAuth:
-            []
-        -
-          SessionToken:
-            []
+      - ApiKeyAuth: []
+      - SessionToken: []
+  /api/analytics/site-monitor:
+    get:
+      summary: Analytics Site Monitor
+      description: 'Site Monitor Phase 1: live presence snapshot + 1d/7d/30d trend
+        charts
+
+        for Site Analytics, Product Usage, and Operational Monitoring. Same
+
+        admin/superadmin role gate and company-filter UX as the existing
+
+        /api/admin/presence endpoint it replaces (AdminPresence.js -> SiteMonitorView.js).'
+      operationId: get_analytics_site_monitor_api_analytics_site_monitor
+      tags:
+      - Analytics
+      responses:
+        '200':
+          description: Success
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '500':
+          description: Server error
+      x-source:
+        file: /Users/edwardc/Projects/amp-backend/app.py
+        function: analytics_site_monitor
+        line: 14438
+      x-audience: public
+      security:
+      - ApiKeyAuth: []
+      - SessionToken: []
+  /api/analytics/site-monitor/chat:
+    post:
+      summary: Site Monitor Chat
+      description: "Generate an LLM response in the context of the Site Monitor page\
+        \ \u2014 one distinct\nsystem prompt per tab (Site Analytics / Product Usage\
+        \ / Operational Monitoring)."
+      operationId: post_site_monitor_chat_api_analytics_site_monitor_chat
+      tags:
+      - Analytics
+      responses:
+        '200':
+          description: Success
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '500':
+          description: Server error
+      x-source:
+        file: /Users/edwardc/Projects/amp-backend/app.py
+        function: site_monitor_chat
+        line: 14665
+      x-audience: public
+      security:
+      - ApiKeyAuth: []
+      - SessionToken: []
+  /api/analytics/site-monitor/chat/history:
+    delete:
+      summary: Site Monitor Chat History
+      description: Persist per-user, per-tab Site Monitor chat history.
+      operationId: delete_site_monitor_chat_history_api_analytics_site_monitor_chat_history
+      tags: &id004
+      - Analytics
+      responses:
+        '200':
+          description: Success
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '500':
+          description: Server error
+      x-source:
+        file: /Users/edwardc/Projects/amp-backend/app.py
+        function: site_monitor_chat_history
+        line: 14636
+      x-audience: public
+      security:
+      - ApiKeyAuth: []
+      - SessionToken: []
+    get:
+      summary: Site Monitor Chat History
+      description: Persist per-user, per-tab Site Monitor chat history.
+      operationId: get_site_monitor_chat_history_api_analytics_site_monitor_chat_history
+      tags: *id004
+      responses:
+        '200':
+          description: Success
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '500':
+          description: Server error
+      x-source:
+        file: /Users/edwardc/Projects/amp-backend/app.py
+        function: site_monitor_chat_history
+        line: 14636
+      x-audience: public
+      security:
+      - ApiKeyAuth: []
+      - SessionToken: []
+    post:
+      summary: Site Monitor Chat History
+      description: Persist per-user, per-tab Site Monitor chat history.
+      operationId: post_site_monitor_chat_history_api_analytics_site_monitor_chat_history
+      tags: *id004
+      responses:
+        '200':
+          description: Success
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '500':
+          description: Server error
+      x-source:
+        file: /Users/edwardc/Projects/amp-backend/app.py
+        function: site_monitor_chat_history
+        line: 14636
+      x-audience: public
+      security:
+      - ApiKeyAuth: []
+      - SessionToken: []
   /api/analytics/user_activity:
     get:
       summary: Analytics User Activity
-      description: "Return org-scoped user_activity_daily rows as a JSON array.\n\nQuery params: start_date, end_date (YYYY-MM-DD; default last 30 days).\nsuperadmin may pass ?org_id= to override scope."
+      description: 'Return org-scoped user_activity_daily rows as a JSON array.
+
+
+        Query params: start_date, end_date (YYYY-MM-DD; default last 30 days).
+
+        superadmin may pass ?org_id= to override scope.'
       operationId: get_analytics_user_activity_api_analytics_user_activity
       tags:
-        - Analytics
+      - Analytics
       responses:
-        200:
+        '200':
           description: Success
-        400:
+        '400':
           description: Bad request
-        401:
+        '401':
           description: Unauthorized
-        500:
+        '500':
           description: Server error
       x-source:
         file: /Users/edwardc/Projects/amp-backend/app.py
         function: analytics_user_activity
-        line: 8673
+        line: 13546
       x-audience: public
       security:
-        -
-          ApiKeyAuth:
-            []
-        -
-          SessionToken:
-            []
+      - ApiKeyAuth: []
+      - SessionToken: []
+  /api/billing/checkout:
+    post:
+      summary: Billing Checkout
+      description: "Initiate a self-service checkout session, or change tier in place\
+        \ if\nthe org already has an active subscription under the current provider.\n\
+        \nBody: { tier_id: int, success_url: str, cancel_url: str }\nReturns either:\n\
+        \  { url: str, session_id: str }               \u2014 no existing subscription;\n\
+        \                                                  caller redirects the\n\
+        \                                                  browser to `url`.\n  {\
+        \ updated: true, subscription_id, tier_name,\n    status }               \
+        \                    \u2014 existing subscription's\n                    \
+        \                              price was swapped in\n                    \
+        \                              place; no redirect.\n\nFree tier uses /api/billing/free/activate\
+        \ instead (no payment needed).\nAdmin+ only \u2014 regular users cannot purchase\
+        \ on behalf of their org."
+      operationId: post_billing_checkout_api_billing_checkout
+      tags:
+      - Uncategorized
+      responses:
+        '200':
+          description: Success
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '500':
+          description: Server error
+      x-source:
+        file: /Users/edwardc/Projects/amp-backend/app.py
+        function: billing_checkout
+        line: 23452
+      x-audience: public
+      security:
+      - ApiKeyAuth: []
+      - SessionToken: []
+  /api/billing/config:
+    get:
+      summary: Billing Config Get
+      description: Return billing config for the caller's org. Admin+ only.
+      operationId: get_billing_config_get_api_billing_config
+      tags:
+      - Uncategorized
+      responses:
+        '200':
+          description: Success
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '500':
+          description: Server error
+      x-source:
+        file: /Users/edwardc/Projects/amp-backend/app.py
+        function: billing_config_get
+        line: 23109
+      x-audience: public
+      security:
+      - ApiKeyAuth: []
+      - SessionToken: []
+    put:
+      summary: Billing Config Put
+      description: Update billing config for the caller's org. Admin+ only.
+      operationId: put_billing_config_put_api_billing_config
+      tags:
+      - Uncategorized
+      responses:
+        '200':
+          description: Success
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '500':
+          description: Server error
+      x-source:
+        file: /Users/edwardc/Projects/amp-backend/app.py
+        function: billing_config_put
+        line: 23120
+      x-audience: public
+      security:
+      - ApiKeyAuth: []
+      - SessionToken: []
+  /api/billing/events:
+    get:
+      summary: Billing Events Get
+      description: Return recent billing events for the caller's org. Admin+ only.
+      operationId: get_billing_events_get_api_billing_events
+      tags:
+      - Uncategorized
+      responses:
+        '200':
+          description: Success
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '500':
+          description: Server error
+      x-source:
+        file: /Users/edwardc/Projects/amp-backend/app.py
+        function: billing_events_get
+        line: 23131
+      x-audience: public
+      security:
+      - ApiKeyAuth: []
+      - SessionToken: []
+  /api/billing/free/activate:
+    post:
+      summary: Billing Free Activate
+      description: "Activate the Free tier for this org without payment. Admin+ only.\n\
+        \nIf the org has an active paid subscription under the current provider,\n\
+        that subscription is canceled at period end rather than dropped\nimmediately\
+        \ \u2014 the org keeps paid access through what it already paid\nfor. The\
+        \ actual transition to Free happens when Stripe's\ncustomer.subscription.deleted\
+        \ webhook confirms the period really ended\n(see billing_webhook_stripe).\
+        \ Without this branch, the org's own record\nwould silently show Free/$0 while\
+        \ Stripe kept billing the old tier."
+      operationId: post_billing_free_activate_api_billing_free_activate
+      tags:
+      - Uncategorized
+      responses:
+        '200':
+          description: Success
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '500':
+          description: Server error
+      x-source:
+        file: /Users/edwardc/Projects/amp-backend/app.py
+        function: billing_free_activate
+        line: 23569
+      x-audience: public
+      security:
+      - ApiKeyAuth: []
+      - SessionToken: []
+  /api/billing/mock/checkout-success:
+    get:
+      summary: Billing Mock Checkout Success
+      description: 'Activate subscription as if checkout completed (mock mode only).
+
+
+        Accepts both GET (redirect from mock URL) and POST (programmatic test).
+
+        Params: org_id, tier_id (query string or JSON body).'
+      operationId: get_billing_mock_checkout_success_api_billing_mock_checkout_success
+      tags: &id005
+      - Uncategorized
+      responses:
+        '200':
+          description: Success
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '500':
+          description: Server error
+      x-source:
+        file: /Users/edwardc/Projects/amp-backend/app.py
+        function: billing_mock_checkout_success
+        line: 23810
+      x-audience: public
+      security:
+      - ApiKeyAuth: []
+      - SessionToken: []
+    post:
+      summary: Billing Mock Checkout Success
+      description: 'Activate subscription as if checkout completed (mock mode only).
+
+
+        Accepts both GET (redirect from mock URL) and POST (programmatic test).
+
+        Params: org_id, tier_id (query string or JSON body).'
+      operationId: post_billing_mock_checkout_success_api_billing_mock_checkout_success
+      tags: *id005
+      responses:
+        '200':
+          description: Success
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '500':
+          description: Server error
+      x-source:
+        file: /Users/edwardc/Projects/amp-backend/app.py
+        function: billing_mock_checkout_success
+        line: 23810
+      x-audience: public
+      security:
+      - ApiKeyAuth: []
+      - SessionToken: []
+  /api/billing/plans:
+    get:
+      summary: Billing Plans List
+      description: Return the self-service billing tier list. Any authenticated user.
+      operationId: get_billing_plans_list_api_billing_plans
+      tags:
+      - Uncategorized
+      responses:
+        '200':
+          description: Success
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '500':
+          description: Server error
+      x-source:
+        file: /Users/edwardc/Projects/amp-backend/app.py
+        function: billing_plans_list
+        line: 23354
+      x-audience: public
+      security:
+      - ApiKeyAuth: []
+      - SessionToken: []
+  /api/billing/portal:
+    post:
+      summary: Billing Portal
+      description: Create a Stripe billing portal session (Stripe mode only). Admin+
+        only.
+      operationId: post_billing_portal_api_billing_portal
+      tags:
+      - Uncategorized
+      responses:
+        '200':
+          description: Success
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '500':
+          description: Server error
+      x-source:
+        file: /Users/edwardc/Projects/amp-backend/app.py
+        function: billing_portal
+        line: 23637
+      x-audience: public
+      security:
+      - ApiKeyAuth: []
+      - SessionToken: []
+  /api/billing/subscription:
+    get:
+      summary: Billing Subscription Get
+      description: Return the org's current subscription and plan info. Any authenticated
+        user.
+      operationId: get_billing_subscription_get_api_billing_subscription
+      tags:
+      - Uncategorized
+      responses:
+        '200':
+          description: Success
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '500':
+          description: Server error
+      x-source:
+        file: /Users/edwardc/Projects/amp-backend/app.py
+        function: billing_subscription_get
+        line: 23390
+      x-audience: public
+      security:
+      - ApiKeyAuth: []
+      - SessionToken: []
+  /api/billing/webhook/stripe:
+    post:
+      summary: Billing Webhook Stripe
+      description: "Stripe signed webhook endpoint (no session auth \u2014 verified\
+        \ by signature).\n\nHandles: checkout.session.completed, customer.subscription.*,\n\
+        \         invoice.paid, invoice.payment_failed"
+      operationId: post_billing_webhook_stripe_api_billing_webhook_stripe
+      tags:
+      - Uncategorized
+      responses:
+        '200':
+          description: Success
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '500':
+          description: Server error
+      x-source:
+        file: /Users/edwardc/Projects/amp-backend/app.py
+        function: billing_webhook_stripe
+        line: 23663
+      x-audience: public
+      security:
+      - ApiKeyAuth: []
+      - SessionToken: []
   /api/config:
     get:
       summary: Get Config
-      description: Expose frontend config including available agent names and LLM settings.
+      description: Expose frontend config including available agent names and LLM
+        settings.
       operationId: get_get_config_api_config
       tags:
-        - Auth / Sessions
+      - Auth / Sessions
       responses:
-        200:
+        '200':
           description: Success
-        400:
+        '400':
           description: Bad request
-        401:
+        '401':
           description: Unauthorized
-        500:
+        '500':
           description: Server error
       x-source:
         file: /Users/edwardc/Projects/amp-backend/app.py
         function: get_config
-        line: 5324
+        line: 7975
       x-audience: public
       security:
-        -
-          ApiKeyAuth:
-            []
-        -
-          SessionToken:
-            []
+      - ApiKeyAuth: []
+      - SessionToken: []
   /api/hitl/agents/{name}/instances/{instance_id}/callback:
     post:
       summary: HITL Callback Remote
       description: Canonical HITL callback route for agent instances.
       operationId: post_hitl_callback_remote_api_hitl_agents_name_instances_instance_id_callback
       tags:
-        - HITL
+      - HITL
       responses:
-        200:
+        '200':
           description: Success
-        400:
+        '400':
           description: Bad request
-        401:
+        '401':
           description: Unauthorized
-        500:
+        '500':
           description: Server error
       x-source:
         file: /Users/edwardc/Projects/amp-backend/app.py
         function: hitl_callback_remote
-        line: 6486
+        line: 10312
       x-audience: public
       parameters:
-        -
-          name: name
-          in: path
-          required: true
-          schema:
-            type: string
-        -
-          name: instance_id
-          in: path
-          required: true
-          schema:
-            type: string
+      - name: name
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: instance_id
+        in: path
+        required: true
+        schema:
+          type: string
       security:
-        -
-          ApiKeyAuth:
-            []
-        -
-          SessionToken:
-            []
+      - ApiKeyAuth: []
+      - SessionToken: []
+  /api/hitl/deliveries/{delivery_id}/retry:
+    post:
+      summary: Retry HITL Callback Delivery
+      description: 'Re-attempt a pending/failed HITL callback delivery (admin only).
+
+
+        Reuses the stored payload and the stable delivery_id: the workitem''s
+
+        decision is never re-made and no second outbox record is created.'
+      operationId: post_retry_hitl_callback_delivery_api_hitl_deliveries_delivery_id_retry
+      tags:
+      - HITL
+      responses:
+        '200':
+          description: Success
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '500':
+          description: Server error
+      x-source:
+        file: /Users/edwardc/Projects/amp-backend/app.py
+        function: retry_hitl_callback_delivery
+        line: 12628
+      x-audience: public
+      parameters:
+      - name: delivery_id
+        in: path
+        required: true
+        schema:
+          type: string
+      security:
+      - ApiKeyAuth: []
+      - SessionToken: []
   /api/hitl/get-decision:
     get:
       summary: HITL Get Decision
       description: Poll normalized HITL decision state for a caller/activity ID.
       operationId: get_hitl_get_decision_api_hitl_get_decision
       tags:
-        - HITL
+      - HITL
       responses:
-        200:
+        '200':
           description: Decision state found or still pending.
           content:
             application/json:
@@ -2248,83 +2888,79 @@ paths:
                     method: auto
                     workitem_id: ''
                     information: auto decision recorded; workitem not created
-        400:
+        '400':
           description: Bad request
-        401:
+        '401':
           description: Unauthorized
-        500:
+        '500':
           description: Server error
       x-source:
         file: /Users/edwardc/Projects/amp-backend/app.py
         function: hitl_get_decision
-        line: 6057
+        line: 9075
       x-audience: public
       security:
-        -
-          ApiKeyAuth:
-            []
-        -
-          SessionToken:
-            []
+      - ApiKeyAuth: []
+      - SessionToken: []
       parameters:
-        -
-          name: caller_id
-          in: query
-          required: false
-          schema:
-            type: string
-          description: "Canonical HITL correlation ID. Usually the instance_id is the caller_id, but when an agent calls HITL multiple of times, caller_id can add a suffix to instance_id to differentiate the calls."
-        -
-          name: instance_id
-          in: query
-          required: false
-          schema:
-            type: string
-          description: Alias of caller_id (use either one).
+      - name: caller_id
+        in: query
+        required: false
+        schema:
+          type: string
+        description: Canonical HITL correlation ID. Usually the instance_id is the
+          caller_id, but when an agent calls HITL multiple of times, caller_id can
+          add a suffix to instance_id to differentiate the calls.
+      - name: instance_id
+        in: query
+        required: false
+        schema:
+          type: string
+        description: Alias of caller_id (use either one).
   /api/hitl/progress:
     get:
       summary: Proxy HITL Progress
       description: Proxy HITL progress requests.
       operationId: get_proxy_hitl_progress_api_hitl_progress
       tags:
-        - HITL
+      - HITL
       responses:
-        200:
+        '200':
           description: Success
-        400:
+        '400':
           description: Bad request
-        401:
+        '401':
           description: Unauthorized
-        500:
+        '500':
           description: Server error
       x-source:
         file: /Users/edwardc/Projects/amp-backend/app.py
         function: proxy_hitl_progress
-        line: 5980
+        line: 8998
       x-audience: public
       security:
-        -
-          ApiKeyAuth:
-            []
-        -
-          SessionToken:
-            []
+      - ApiKeyAuth: []
+      - SessionToken: []
   /api/hitl/request:
     post:
       summary: HITL Request
-      description: "Submit a HITL request and optionally register a completion callback.\n\nAMP-HITL evaluates WHEN/WHO/WHAT/WHERE and either returns `no-hitl` immediately or accepts the request and completes later via human or auto routing."
+      description: 'Submit a HITL request and optionally register a completion callback.
+
+
+        AMP-HITL evaluates WHEN/WHO/WHAT/WHERE and either returns `no-hitl` immediately
+        or accepts the request and completes later via human or auto routing.'
       operationId: post_proxy_hitl_api_hitl_request
       tags:
-        - HITL
+      - HITL
       responses:
-        200:
+        '200':
           description: No HITL needed or HITL disabled.
           content:
             application/json:
               example:
                 status: no-hitl
                 information: WHEN condition not met
-        400:
+        '400':
           description: Validation or preflight error.
           content:
             application/json:
@@ -2332,11 +2968,11 @@ paths:
                 status: error
                 error: callback_url_invalid_scheme
                 information: callback URL must use http or https
-        401:
+        '401':
           description: Unauthorized
-        500:
+        '500':
           description: Server error
-        202:
+        '202':
           description: Accepted for asynchronous HITL processing.
           content:
             application/json:
@@ -2344,23 +2980,21 @@ paths:
                 status: waiting-for-response
                 caller_id: invoice-payment-agent-5c58-20260310135042
                 information:
-                  who: "initiator@example.com"
+                  who: initiator@example.com
                   what: approval
                   where: amp
+                  notify:
+                  - email
                 links:
-                  status: "/api/hitl/status?caller_id=invoice-payment-agent-5c58-20260310135042"
+                  status: /api/hitl/status?caller_id=invoice-payment-agent-5c58-20260310135042
       x-source:
         file: /Users/edwardc/Projects/amp-backend/app.py
         function: proxy_hitl
-        line: 5766
+        line: 8736
       x-audience: public
       security:
-        -
-          ApiKeyAuth:
-            []
-        -
-          SessionToken:
-            []
+      - ApiKeyAuth: []
+      - SessionToken: []
       requestBody:
         required: true
         content:
@@ -2368,14 +3002,17 @@ paths:
             schema:
               type: object
               required:
-                - caller_id
-                - instance_id
-                - org_id
-                - agent_name
+              - caller_id
+              - instance_id
+              - org_id
+              - agent_name
               properties:
                 caller_id:
                   type: string
-                  description: "Canonical HITL correlation ID. Usually the instance_id is the caller_id, but when an agent calls HITL multiple of times, caller_id can add a suffix to instance_id to differentiate the calls."
+                  description: Canonical HITL correlation ID. Usually the instance_id
+                    is the caller_id, but when an agent calls HITL multiple of times,
+                    caller_id can add a suffix to instance_id to differentiate the
+                    calls.
                 instance_id:
                   type: string
                   description: Agent instance id. Alias of caller_id for compatibility.
@@ -2384,16 +3021,22 @@ paths:
                   description: The organization id.
                 agent_name:
                   type: string
-                  description: "The name of the agent type registered under this organization. E.g., \"invoice-payment-agent-5c58\"."
+                  description: The name of the agent type registered under this organization.
+                    E.g., "invoice-payment-agent-5c58".
                 rlhf:
                   type: object
-                  description: "RLHF/policy evaluation inputs for this HITL request. This may include action context, facts context, criteria results, and other relevant information to inform HITL routing and decisions. AMP will evaluate this information against the RLHF policies associated with the agent to help determine the appropriate routing and decision logic for this HITL request."
+                  description: RLHF/policy evaluation inputs for this HITL request.
+                    This may include action context, facts context, criteria results,
+                    and other relevant information to inform HITL routing and decisions.
+                    AMP will evaluate this information against the RLHF policies associated
+                    with the agent to help determine the appropriate routing and decision
+                    logic for this HITL request.
                   properties:
                     policy_values_source:
                       type: string
                       enum:
-                        - external
-                        - internal
+                      - external
+                      - internal
                     action_context:
                       type: object
                       additionalProperties: true
@@ -2418,7 +3061,10 @@ paths:
                       type: string
                 hitl:
                   type: object
-                  description: "HITL configuration for this request in JSON to specify the WHEN, WHO, WHAT, and WHERE conditions for the HITL request. If not provided, AMP will use default HITL settings if enabled."
+                  description: HITL configuration for this request in JSON to specify
+                    the WHEN, WHO, WHAT, WHERE, and NOTIFY conditions for the HITL
+                    request. If not provided, AMP will use default HITL settings if
+                    enabled.
                   properties:
                     enable:
                       type: boolean
@@ -2429,16 +3075,35 @@ paths:
                     what:
                       type: string
                       enum:
-                        - approval
-                        - notify
+                      - approval
+                      - notify
                     where:
                       type: string
                       enum:
-                        - amp
-                        - email
+                      - amp
+                      description: The decision locus -- where the approve/reject/modify
+                        decision is actually made. Only 'amp' is supported today;
+                        the human always decides in AMP, whether or not they were
+                        also alerted via `notify`. Approve-by-email (a human replying
+                        to the alert email instead of visiting AMP) is not implemented
+                        -- 'email' is rejected with where_email_not_yet_supported.
+                    notify:
+                      type: array
+                      items:
+                        type: string
+                      description: 'Optional alert channels, independent of `where`.
+                        The reviewer still decides in AMP either way; this only controls
+                        whether they''re also pinged. Only ''email'' delivers anything
+                        today (sent to the resolved `who` address -- AMP usernames
+                        are always email addresses, so no separate address is collected).
+                        Unrecognized channel names are silently dropped rather than
+                        rejected, so configs written ahead of a future channel (e.g.
+                        ''slack'') landing won''t break. Default: no alert.'
                 callback:
                   type: object
-                  description: "Optional callback configuration for HITL completion. If provided, AMP will call the specified URL with the HITL result when available."
+                  description: Optional callback configuration for HITL completion.
+                    If provided, AMP will call the specified URL with the HITL result
+                    when available.
                   properties:
                     url:
                       type: string
@@ -2450,7 +3115,7 @@ paths:
                       minimum: 500
                       maximum: 30000
                   required:
-                    - url
+                  - url
             example:
               caller_id: invoice-payment-agent-5c58-20260310135042
               instance_id: invoice-payment-agent-5c58-20260310135042
@@ -2465,20 +3130,20 @@ paths:
                 facts_context:
                   amount_over_threshold: true
                 criteria:
-                  -
-                    criterion_id: c_amount_within_policy
-                    result: true
-                  -
-                    criterion_id: c_vendor_risk_acceptable
-                    result: true
+                - criterion_id: c_amount_within_policy
+                  result: true
+                - criterion_id: c_vendor_risk_acceptable
+                  result: true
               hitl:
                 enable: true
-                when: "amount > 1000"
+                when: amount > 1000
                 who: initiator
                 what: approval
                 where: amp
+                notify:
+                - email
               callback:
-                url: "https://caller.example.com/hitl/callback"
+                url: https://caller.example.com/hitl/callback
                 secret: shared-secret
                 timeout_ms: 5000
   /api/hitl/status:
@@ -2487,821 +3152,1265 @@ paths:
       description: Proxy HITL status requests.
       operationId: get_proxy_hitl_status_api_hitl_status
       tags:
-        - HITL
+      - HITL
       responses:
-        200:
+        '200':
           description: Success
-        400:
+        '400':
           description: Bad request
-        401:
+        '401':
           description: Unauthorized
-        500:
+        '500':
           description: Server error
       x-source:
         file: /Users/edwardc/Projects/amp-backend/app.py
         function: proxy_hitl_status
-        line: 5966
+        line: 8984
       x-audience: public
       security:
-        -
-          ApiKeyAuth:
-            []
-        -
-          SessionToken:
-            []
+      - ApiKeyAuth: []
+      - SessionToken: []
   /api/log:
     post:
       summary: Proxy Log
-      description: "Proxy endpoint for logging requests from remote agents.\nForwards requests to internal Logger service."
+      description: 'Ingest an agent activity log event directly into OpenSearch via
+
+        agent_log_store (see AMP_DESIGN_AND_DEPLOYMENT.md).'
       operationId: post_proxy_log_api_log
       tags:
-        - Log Proxy
+      - Log Proxy
       responses:
-        200:
+        '200':
           description: Success
-        400:
+        '400':
           description: Bad request
-        401:
+        '401':
           description: Unauthorized
-        500:
+        '500':
           description: Server error
       x-source:
         file: /Users/edwardc/Projects/amp-backend/app.py
         function: proxy_log
-        line: 6338
+        line: 10180
       x-audience: public
       security:
-        -
-          ApiKeyAuth:
-            []
-        -
-          SessionToken:
-            []
+      - ApiKeyAuth: []
+      - SessionToken: []
   /api/log/hitl-progress:
     get:
       summary: Proxy Log HITL Progress
-      description: "Proxy a HITL progress request to the log service.\n\nForwards query parameters and any internal secret header. Returns 503\nif the log service is unreachable."
+      description: ''
       operationId: get_proxy_log_hitl_progress_api_log_hitl_progress
       tags:
-        - Log Proxy
+      - Log Proxy
       responses:
-        200:
+        '200':
           description: Success
-        400:
+        '400':
           description: Bad request
-        401:
+        '401':
           description: Unauthorized
-        500:
+        '500':
           description: Server error
       x-source:
         file: /Users/edwardc/Projects/amp-backend/app.py
         function: proxy_log_hitl_progress
-        line: 6411
+        line: 10227
       x-audience: public
       security:
-        -
-          ApiKeyAuth:
-            []
-        -
-          SessionToken:
-            []
+      - ApiKeyAuth: []
+      - SessionToken: []
   /api/log/progress-all:
     get:
       summary: Proxy Log Progress All
-      description: "Proxy a progress-all status request to the log service.\n\nForwards query parameters and any internal secret header. Returns 503\nif the log service is unreachable."
+      description: ''
       operationId: get_proxy_log_progress_all_api_log_progress_all
       tags:
-        - Log Proxy
+      - Log Proxy
       responses:
-        200:
+        '200':
           description: Success
-        400:
+        '400':
           description: Bad request
-        401:
+        '401':
           description: Unauthorized
-        500:
+        '500':
           description: Server error
       x-source:
         file: /Users/edwardc/Projects/amp-backend/app.py
         function: proxy_log_progress_all
-        line: 6394
+        line: 10215
       x-audience: public
       security:
-        -
-          ApiKeyAuth:
-            []
-        -
-          SessionToken:
-            []
+      - ApiKeyAuth: []
+      - SessionToken: []
   /api/log_llm:
     post:
       summary: Log LLM Response
       description: Append a USER/LLM exchange to logs/amp.log for later auditing/debugging.
       operationId: post_log_llm_response_api_log_llm
       tags:
-        - Log Proxy
+      - Log Proxy
       responses:
-        200:
+        '200':
           description: Success
-        400:
+        '400':
           description: Bad request
-        401:
+        '401':
           description: Unauthorized
-        500:
+        '500':
           description: Server error
       x-source:
         file: /Users/edwardc/Projects/amp-backend/app.py
         function: log_llm_response
-        line: 4786
+        line: 6903
       x-audience: public
       security:
-        -
-          ApiKeyAuth:
-            []
-        -
-          SessionToken:
-            []
+      - ApiKeyAuth: []
+      - SessionToken: []
   /api/login:
     post:
       summary: Login
       description: Authenticate a user and issue an in-memory session token.
       operationId: post_login_api_login
       tags:
-        - Auth / Sessions
+      - Auth / Sessions
       responses:
-        200:
+        '200':
           description: Success
-        400:
+        '400':
           description: Bad request
-        401:
+        '401':
           description: Unauthorized
-        500:
+        '500':
           description: Server error
       x-source:
         file: /Users/edwardc/Projects/amp-backend/app.py
         function: login
-        line: 3680
+        line: 5059
       x-audience: public
       security:
-        -
-          ApiKeyAuth:
-            []
-        -
-          SessionToken:
-            []
+      - ApiKeyAuth: []
+      - SessionToken: []
   /api/logout:
     post:
       summary: Logout
-      description: "Invalidate the caller's active session."
+      description: Invalidate the caller's active session and clear the session cookie.
       operationId: post_logout_api_logout
       tags:
-        - Auth / Sessions
+      - Auth / Sessions
       responses:
-        200:
+        '200':
           description: Success
-        400:
+        '400':
           description: Bad request
-        401:
+        '401':
           description: Unauthorized
-        500:
+        '500':
           description: Server error
       x-source:
         file: /Users/edwardc/Projects/amp-backend/app.py
         function: logout
-        line: 3750
+        line: 5226
       x-audience: public
       security:
-        -
-          ApiKeyAuth:
-            []
-        -
-          SessionToken:
-            []
+      - ApiKeyAuth: []
+      - SessionToken: []
+  /api/org/identity:
+    post:
+      summary: Update Org Identity
+      description: "Set an org's display name and self-service email domain.\n\nThis\
+        \ is the org-identity prompt shown when upgrading to Starter+ for\nthe first\
+        \ time \u2014 deliberately deferred until then rather than asked at\nsignup.\
+        \ The domain must match the requesting user's own verified\nsignup email domain\
+        \ (no claiming a domain you don't own); this\nconstraint is specific to this\
+        \ self-service endpoint and does not\napply to the general superadmin org-domains\
+        \ admin endpoint."
+      operationId: post_update_org_identity_api_org_identity
+      tags:
+      - Uncategorized
+      responses:
+        '200':
+          description: Success
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '500':
+          description: Server error
+      x-source:
+        file: /Users/edwardc/Projects/amp-backend/app.py
+        function: update_org_identity
+        line: 5636
+      x-audience: public
+      security:
+      - ApiKeyAuth: []
+      - SessionToken: []
+  /api/org/invites:
+    post:
+      summary: Create Org Invite
+      description: "Invite someone to the caller's active org. Any active member may\
+        \ invite.\n\nStarter+ orgs: a real, single-use token that adds the invitee\
+        \ to this\norg on accept, subject to the seat limit. Free-tier orgs: a stateless\n\
+        referral link to plain signup with no org linkage \u2014 Free orgs stay\n\
+        single-member by design, so \"inviting\" from one just points a friend\nat\
+        \ normal signup instead of granting membership."
+      operationId: post_create_org_invite_api_org_invites
+      tags:
+      - Uncategorized
+      responses:
+        '200':
+          description: Success
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '500':
+          description: Server error
+      x-source:
+        file: /Users/edwardc/Projects/amp-backend/app.py
+        function: create_org_invite
+        line: 5551
+      x-audience: public
+      security:
+      - ApiKeyAuth: []
+      - SessionToken: []
   /api/password/change:
     post:
       summary: Change Password
-      description: Allow a user to change their password by providing the current password.
+      description: Allow a user to change their password by providing the current
+        password.
       operationId: post_change_password_api_password_change
       tags:
-        - Auth / Sessions
+      - Auth / Sessions
       responses:
-        200:
+        '200':
           description: Success
-        400:
+        '400':
           description: Bad request
-        401:
+        '401':
           description: Unauthorized
-        500:
+        '500':
           description: Server error
       x-source:
         file: /Users/edwardc/Projects/amp-backend/app.py
         function: change_password
-        line: 3988
+        line: 5720
       x-audience: public
       security:
-        -
-          ApiKeyAuth:
-            []
-        -
-          SessionToken:
-            []
+      - ApiKeyAuth: []
+      - SessionToken: []
   /api/password/setup:
     post:
       summary: Setup Password
-      description: Set an initial password for a user record that lacks a stored hash.
+      description: "Set an initial password for a user record that lacks a stored\
+        \ hash.\n\nRequires a single-use 'account_setup' token (issued by admin_create_user\n\
+        and delivered via the account_invited email) proving ownership of the\naccount\
+        \ \u2014 the token's own username is the sole lookup key; any\nclient-supplied\
+        \ username is ignored for identity purposes."
       operationId: post_setup_password_api_password_setup
       tags:
-        - Auth / Sessions
+      - Auth / Sessions
       responses:
-        200:
+        '200':
           description: Success
-        400:
+        '400':
           description: Bad request
-        401:
+        '401':
           description: Unauthorized
-        500:
+        '500':
           description: Server error
       x-source:
         file: /Users/edwardc/Projects/amp-backend/app.py
         function: setup_password
-        line: 4019
+        line: 5751
       x-audience: public
       security:
-        -
-          ApiKeyAuth:
-            []
-        -
-          SessionToken:
-            []
+      - ApiKeyAuth: []
+      - SessionToken: []
   /api/policy/library:
     get:
       summary: List Policy Library
       description: List all template folders in the policy library (read-only).
       operationId: get_list_policy_library_api_policy_library
       tags:
-        - Uncategorized
+      - Uncategorized
       responses:
-        200:
+        '200':
           description: Success
-        400:
+        '400':
           description: Bad request
-        401:
+        '401':
           description: Unauthorized
-        500:
+        '500':
           description: Server error
       x-source:
         file: /Users/edwardc/Projects/amp-backend/app.py
         function: list_policy_library
-        line: 11871
+        line: 18265
       x-audience: public
       security:
-        -
-          ApiKeyAuth:
-            []
-        -
-          SessionToken:
-            []
+      - ApiKeyAuth: []
+      - SessionToken: []
   /api/policy/library/{folder_name}:
     get:
       summary: Get Policy Library Template
       description: Read a policy.json template from the policy library (read-only).
       operationId: get_get_policy_library_template_api_policy_library_folder_name
       tags:
-        - Uncategorized
+      - Uncategorized
       responses:
-        200:
+        '200':
           description: Success
-        400:
+        '400':
           description: Bad request
-        401:
+        '401':
           description: Unauthorized
-        500:
+        '500':
           description: Server error
       x-source:
         file: /Users/edwardc/Projects/amp-backend/app.py
         function: get_policy_library_template
-        line: 11890
+        line: 18284
       x-audience: public
       parameters:
-        -
-          name: folder_name
-          in: path
-          required: true
-          schema:
-            type: string
+      - name: folder_name
+        in: path
+        required: true
+        schema:
+          type: string
       security:
-        -
-          ApiKeyAuth:
-            []
-        -
-          SessionToken:
-            []
-  /api/register:
-    options:
-      summary: Register
-      description: Create a new local user in the database using PBKDF2-SHA256.
-      operationId: options_register_api_register
-      tags:
-        - Auth / Sessions
-      responses:
-        200:
-          description: Success
-        400:
-          description: Bad request
-        401:
-          description: Unauthorized
-        500:
-          description: Server error
-      x-source:
-        file: /Users/edwardc/Projects/amp-backend/app.py
-        function: register
-        line: 13862
-      x-audience: public
-      security:
-        -
-          ApiKeyAuth:
-            []
-        -
-          SessionToken:
-            []
+      - ApiKeyAuth: []
+      - SessionToken: []
+  /api/policy/recommend-template:
     post:
-      summary: Register
-      description: Create a new local user in the database using PBKDF2-SHA256.
-      operationId: post_register_api_register
+      summary: Recommend Policy Template
+      description: Recommend a policy library template folder for a given agent name/description.
+      operationId: post_recommend_policy_template_api_policy_recommend_template
       tags:
-        - Auth / Sessions
+      - Uncategorized
       responses:
-        200:
+        '200':
           description: Success
-        400:
+        '400':
           description: Bad request
-        401:
+        '401':
           description: Unauthorized
-        500:
+        '500':
           description: Server error
       x-source:
         file: /Users/edwardc/Projects/amp-backend/app.py
-        function: register
-        line: 13862
+        function: recommend_policy_template
+        line: 7653
       x-audience: public
       security:
-        -
-          ApiKeyAuth:
-            []
-        -
-          SessionToken:
-            []
+      - ApiKeyAuth: []
+      - SessionToken: []
   /api/rlhf/approval_request:
     get:
       summary: RLHF Fetch Approval Request
       description: Fetch a stored RLHF approval request by decision_point_id.
       operationId: get_rlhf_fetch_approval_request_api_rlhf_approval_request
       tags:
-        - RLHF
+      - RLHF
       responses:
-        200:
+        '200':
           description: Success
-        400:
+        '400':
           description: Bad request
-        401:
+        '401':
           description: Unauthorized
-        500:
+        '500':
           description: Server error
       x-source:
         file: /Users/edwardc/Projects/amp-backend/app.py
         function: rlhf_fetch_approval_request
-        line: 12678
+        line: 19335
       x-audience: public
       security:
-        -
-          ApiKeyAuth:
-            []
-        -
-          SessionToken:
-            []
+      - ApiKeyAuth: []
+      - SessionToken: []
   /api/rlhf/bootstrap:
     post:
       summary: RLHF Bootstrap Agent
-      description: Bootstrap rlhf_agent_config/state from policy and optionally enqueue STAGE_TICK.
+      description: Bootstrap rlhf_agent_config/state from policy and optionally enqueue
+        STAGE_TICK.
       operationId: post_rlhf_bootstrap_agent_api_rlhf_bootstrap
       tags:
-        - RLHF
+      - RLHF
       responses:
-        200:
+        '200':
           description: Success
-        400:
+        '400':
           description: Bad request
-        401:
+        '401':
           description: Unauthorized
-        500:
+        '500':
           description: Server error
       x-source:
         file: /Users/edwardc/Projects/amp-backend/app.py
         function: rlhf_bootstrap_agent
-        line: 13531
+        line: 20567
       x-audience: public
       security:
-        -
-          ApiKeyAuth:
-            []
-        -
-          SessionToken:
-            []
+      - ApiKeyAuth: []
+      - SessionToken: []
+  /api/rlhf/chat:
+    post:
+      summary: RLHF Chat
+      description: Generate an LLM response in the context of the RLHF Monitor page.
+      operationId: post_rlhf_chat_api_rlhf_chat
+      tags:
+      - RLHF
+      responses:
+        '200':
+          description: Success
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '500':
+          description: Server error
+      x-source:
+        file: /Users/edwardc/Projects/amp-backend/app.py
+        function: rlhf_chat
+        line: 22345
+      x-audience: public
+      security:
+      - ApiKeyAuth: []
+      - SessionToken: []
+  /api/rlhf/chat/history:
+    delete:
+      summary: RLHF Chat History
+      description: Persist per-user, per-agent RLHF chat history.
+      operationId: delete_rlhf_chat_history_api_rlhf_chat_history
+      tags: &id006
+      - RLHF
+      responses:
+        '200':
+          description: Success
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '500':
+          description: Server error
+      x-source:
+        file: /Users/edwardc/Projects/amp-backend/app.py
+        function: rlhf_chat_history
+        line: 22320
+      x-audience: public
+      security:
+      - ApiKeyAuth: []
+      - SessionToken: []
+    get:
+      summary: RLHF Chat History
+      description: Persist per-user, per-agent RLHF chat history.
+      operationId: get_rlhf_chat_history_api_rlhf_chat_history
+      tags: *id006
+      responses:
+        '200':
+          description: Success
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '500':
+          description: Server error
+      x-source:
+        file: /Users/edwardc/Projects/amp-backend/app.py
+        function: rlhf_chat_history
+        line: 22320
+      x-audience: public
+      security:
+      - ApiKeyAuth: []
+      - SessionToken: []
+    post:
+      summary: RLHF Chat History
+      description: Persist per-user, per-agent RLHF chat history.
+      operationId: post_rlhf_chat_history_api_rlhf_chat_history
+      tags: *id006
+      responses:
+        '200':
+          description: Success
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '500':
+          description: Server error
+      x-source:
+        file: /Users/edwardc/Projects/amp-backend/app.py
+        function: rlhf_chat_history
+        line: 22320
+      x-audience: public
+      security:
+      - ApiKeyAuth: []
+      - SessionToken: []
   /api/rlhf/contract/approve:
     post:
       summary: RLHF Approve Contract
-      description: "Approve an RLHF policy contract binding the policy to an org and agent.\n\nCalculates an approval hash over the policy, allowlists, and approver info,\nthen stores the contract record in the database."
+      description: 'Approve an RLHF policy contract binding the policy to an org and
+        agent.
+
+
+        Calculates an approval hash over the policy, allowlists, and approver info,
+
+        then stores the contract record in the database.'
       operationId: post_rlhf_approve_contract_api_rlhf_contract_approve
       tags:
-        - RLHF
+      - RLHF
       responses:
-        200:
+        '200':
           description: Success
-        400:
+        '400':
           description: Bad request
-        401:
+        '401':
           description: Unauthorized
-        500:
+        '500':
           description: Server error
       x-source:
         file: /Users/edwardc/Projects/amp-backend/app.py
         function: rlhf_approve_contract
-        line: 12115
+        line: 18613
       x-audience: public
       security:
-        -
-          ApiKeyAuth:
-            []
-        -
-          SessionToken:
-            []
+      - ApiKeyAuth: []
+      - SessionToken: []
   /api/rlhf/decision/bind_workitem:
     post:
       summary: RLHF Bind Workitem
-      description: "Atomically bind an RLHF decision request to a workitem for human-routed decisions.\nReturns deterministic routing fields for client integrators."
+      description: 'Atomically bind an RLHF decision request to a workitem for human-routed
+        decisions.
+
+        Returns deterministic routing fields for client integrators.'
       operationId: post_rlhf_bind_workitem_api_rlhf_decision_bind_workitem
       tags:
-        - RLHF
+      - RLHF
       responses:
-        200:
+        '200':
           description: Success
-        400:
+        '400':
           description: Bad request
-        401:
+        '401':
           description: Unauthorized
-        500:
+        '500':
           description: Server error
       x-source:
         file: /Users/edwardc/Projects/amp-backend/app.py
         function: rlhf_bind_workitem
-        line: 12322
+        line: 18821
       x-audience: public
       security:
-        -
-          ApiKeyAuth:
-            []
-        -
-          SessionToken:
-            []
+      - ApiKeyAuth: []
+      - SessionToken: []
   /api/rlhf/decision_status:
     get:
       summary: RLHF Decision Status
-      description: "Deterministic status for one decision_point_id (routing, mode, and workitem linkage)."
+      description: Deterministic status for one decision_point_id (routing, mode,
+        and workitem linkage).
       operationId: get_rlhf_decision_status_api_rlhf_decision_status
       tags:
-        - RLHF
+      - RLHF
       responses:
-        200:
+        '200':
           description: Success
-        400:
+        '400':
           description: Bad request
-        401:
+        '401':
           description: Unauthorized
-        500:
+        '500':
           description: Server error
       x-source:
         file: /Users/edwardc/Projects/amp-backend/app.py
         function: rlhf_decision_status
-        line: 12779
+        line: 19449
       x-audience: public
       security:
-        -
-          ApiKeyAuth:
-            []
-        -
-          SessionToken:
-            []
+      - ApiKeyAuth: []
+      - SessionToken: []
   /api/rlhf/models:
     get:
       summary: RLHF Model Registry List
-      description: "List model versions in the registry, optionally filtered by org/agent/status."
+      description: List model versions in the registry, optionally filtered by org/agent/status.
       operationId: get_rlhf_model_registry_list_api_rlhf_models
       tags:
-        - RLHF
+      - RLHF
       responses:
-        200:
+        '200':
           description: Success
-        400:
+        '400':
           description: Bad request
-        401:
+        '401':
           description: Unauthorized
-        500:
+        '500':
           description: Server error
       x-source:
         file: /Users/edwardc/Projects/amp-backend/app.py
         function: rlhf_model_registry_list
-        line: 14232
+        line: 21242
       x-audience: public
       security:
-        -
-          ApiKeyAuth:
-            []
-        -
-          SessionToken:
-            []
+      - ApiKeyAuth: []
+      - SessionToken: []
   /api/rlhf/models/{model_id}/activate:
     post:
       summary: RLHF Model Registry Activate
-      description: "Activate a model version. Retires the currently active model for\nthe same (org_id, agent_name) and marks this one as active.\nSuperadmin only."
+      description: 'Activate a model version. Retires the currently active model for
+
+        the same (org_id, agent_name) and marks this one as active.
+
+        Superadmin only.'
       operationId: post_rlhf_model_registry_activate_api_rlhf_models_model_id_activate
       tags:
-        - RLHF
+      - RLHF
       responses:
-        200:
+        '200':
           description: Success
-        400:
+        '400':
           description: Bad request
-        401:
+        '401':
           description: Unauthorized
-        500:
+        '500':
           description: Server error
       x-source:
         file: /Users/edwardc/Projects/amp-backend/app.py
         function: rlhf_model_registry_activate
-        line: 14290
+        line: 21300
       x-audience: public
       parameters:
-        -
-          name: model_id
-          in: path
-          required: true
-          schema:
-            type: integer
+      - name: model_id
+        in: path
+        required: true
+        schema:
+          type: integer
       security:
-        -
-          ApiKeyAuth:
-            []
-        -
-          SessionToken:
-            []
+      - ApiKeyAuth: []
+      - SessionToken: []
   /api/rlhf/models/{model_id}/retire:
     post:
       summary: RLHF Model Registry Retire
       description: Retire a model version. Superadmin only.
       operationId: post_rlhf_model_registry_retire_api_rlhf_models_model_id_retire
       tags:
-        - RLHF
+      - RLHF
       responses:
-        200:
+        '200':
           description: Success
-        400:
+        '400':
           description: Bad request
-        401:
+        '401':
           description: Unauthorized
-        500:
+        '500':
           description: Server error
       x-source:
         file: /Users/edwardc/Projects/amp-backend/app.py
         function: rlhf_model_registry_retire
-        line: 14339
+        line: 21349
       x-audience: public
       parameters:
-        -
-          name: model_id
-          in: path
-          required: true
-          schema:
-            type: integer
+      - name: model_id
+        in: path
+        required: true
+        schema:
+          type: integer
       security:
-        -
-          ApiKeyAuth:
-            []
-        -
-          SessionToken:
-            []
+      - ApiKeyAuth: []
+      - SessionToken: []
+  /api/rlhf/models/{model_id}/training_trace:
+    get:
+      summary: RLHF Model Training Trace
+      description: "Return the per-epoch training trace for a model.\n\nReads {artifact_path}/training_trace.json\
+        \ from disk.\nReturns the points array with train/test accuracy, logloss,\
+        \ and top_weights per epoch.\n\nQuery params:\n  agent_name  (required for\
+        \ org scoping)"
+      operationId: get_rlhf_model_training_trace_api_rlhf_models_model_id_training_trace
+      tags:
+      - RLHF
+      responses:
+        '200':
+          description: Success
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '500':
+          description: Server error
+      x-source:
+        file: /Users/edwardc/Projects/amp-backend/app.py
+        function: rlhf_model_training_trace
+        line: 21995
+      x-audience: public
+      parameters:
+      - name: model_id
+        in: path
+        required: true
+        schema:
+          type: integer
+      security:
+      - ApiKeyAuth: []
+      - SessionToken: []
+  /api/rlhf/observability/criteria_breakdown:
+    get:
+      summary: RLHF Observability Criteria Breakdown
+      description: "Per-criterion pass/fail counts scoped to the active policy's criteria.\n\
+        \nLoads the active policy for the agent and uses its criterion list as the\n\
+        canonical source of criterion_id, text, and hardness. Only criteria present\n\
+        in the active policy are returned. Historical requests whose criteria list\n\
+        matches the active policy's IDs contribute to the counts.\n\nQuery params:\n\
+        \  agent_name  (required)\n  days        (optional, default 0 = all time)"
+      operationId: get_rlhf_observability_criteria_breakdown_api_rlhf_observability_criteria_breakdown
+      tags:
+      - RLHF
+      responses:
+        '200':
+          description: Success
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '500':
+          description: Server error
+      x-source:
+        file: /Users/edwardc/Projects/amp-backend/app.py
+        function: rlhf_observability_criteria_breakdown
+        line: 21863
+      x-audience: public
+      security:
+      - ApiKeyAuth: []
+      - SessionToken: []
+  /api/rlhf/observability/events:
+    get:
+      summary: RLHF Observability Events
+      description: "Timeline events for one (org_id, agent_name) in the given window.\n\
+        \nQuery params:\n  agent_name  (required)\n  days        1-365, default 30\n\
+        \  start_date  YYYY-MM-DD; if given, overrides days\n  limit       max rows\
+        \ returned, default 5000, max 10000"
+      operationId: get_rlhf_observability_events_api_rlhf_observability_events
+      tags:
+      - RLHF
+      responses:
+        '200':
+          description: Success
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '500':
+          description: Server error
+      x-source:
+        file: /Users/edwardc/Projects/amp-backend/app.py
+        function: rlhf_observability_events
+        line: 21650
+      x-audience: public
+      security:
+      - ApiKeyAuth: []
+      - SessionToken: []
+  /api/rlhf/observability/summary:
+    get:
+      summary: RLHF Observability Summary
+      description: "Composed summary for the RLHF Monitor dashboard.\n\nDraws from\
+        \ rlhf_agent_state, rlhf_model_registry, rlhf_jobs, and\napproval request/outcome\
+        \ counts.  No simulator-specific data.\n\nQuery params:\n  agent_name  (required)"
+      operationId: get_rlhf_observability_summary_api_rlhf_observability_summary
+      tags:
+      - RLHF
+      responses:
+        '200':
+          description: Success
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '500':
+          description: Server error
+      x-source:
+        file: /Users/edwardc/Projects/amp-backend/app.py
+        function: rlhf_observability_summary
+        line: 21698
+      x-audience: public
+      security:
+      - ApiKeyAuth: []
+      - SessionToken: []
+  /api/rlhf/observability/timeseries:
+    get:
+      summary: RLHF Observability Timeseries
+      description: "Time-series of daily RLHF decision aggregates for one (org_id,\
+        \ agent_name).\n\nQuery params:\n  agent_name  (required)\n  days        1-365,\
+        \ default 30\n  start_date  YYYY-MM-DD; if given, overrides days and shows\
+        \ data from that date to today"
+      operationId: get_rlhf_observability_timeseries_api_rlhf_observability_timeseries
+      tags:
+      - RLHF
+      responses:
+        '200':
+          description: Success
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '500':
+          description: Server error
+      x-source:
+        file: /Users/edwardc/Projects/amp-backend/app.py
+        function: rlhf_observability_timeseries
+        line: 21597
+      x-audience: public
+      security:
+      - ApiKeyAuth: []
+      - SessionToken: []
   /api/rlhf/outcome:
     post:
       summary: RLHF Submit Outcome
       description: Submit RLHF approval outcome to HITL agent (internal wiring).
       operationId: post_rlhf_submit_outcome_api_rlhf_outcome
       tags:
-        - RLHF
+      - RLHF
       responses:
-        200:
+        '200':
           description: Success
-        400:
+        '400':
           description: Bad request
-        401:
+        '401':
           description: Unauthorized
-        500:
+        '500':
           description: Server error
       x-source:
         file: /Users/edwardc/Projects/amp-backend/app.py
         function: rlhf_submit_outcome
-        line: 12541
+        line: 19042
       x-audience: public
       security:
-        -
-          ApiKeyAuth:
-            []
-        -
-          SessionToken:
-            []
+      - ApiKeyAuth: []
+      - SessionToken: []
+  /api/rlhf/outcome-deliveries/{workitem_id}/retry:
+    post:
+      summary: Retry RLHF Outcome Delivery
+      description: 'Re-attempt a pending/failed RLHF model/stage-approval outcome
+        side
+
+        effect (OSS-008, migration 0039; admin only).
+
+
+        The workitem''s decision is never re-made; this only re-runs the
+
+        RLHF-outcome recorder from its stored context. Both recorders upsert
+
+        ``rlhf_approval_outcome`` by ``request_id``, so retrying an already-
+
+        recorded delivery is safe (it is also rejected outright below).'
+      operationId: post_retry_rlhf_outcome_delivery_api_rlhf_outcome_deliveries_workitem_id_retry
+      tags:
+      - RLHF
+      responses:
+        '200':
+          description: Success
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '500':
+          description: Server error
+      x-source:
+        file: /Users/edwardc/Projects/amp-backend/app.py
+        function: retry_rlhf_outcome_delivery
+        line: 12692
+      x-audience: public
+      parameters:
+      - name: workitem_id
+        in: path
+        required: true
+        schema:
+          type: string
+      security:
+      - ApiKeyAuth: []
+      - SessionToken: []
+  /api/rlhf/outcome/feedback:
+    post:
+      summary: RLHF Submit Outcome Feedback
+      description: "Record downstream outcome feedback for a prior RLHF approval decision.\n\
+        \nCalled by agents after the real-world result of an approved/rejected action\n\
+        is known.  The feedback closes the RL loop: the reward_weight stored here\n\
+        is used to weight the training loss on the next model training cycle.\n\n\
+        Payload:\n    org_id        \u2014 organisation ID\n    instance_id   \u2014\
+        \ agent instance ID (e.g. email-agent-20260418120000)\n    outcome       \u2014\
+        \ 'succeeded' | 'failed' | 'reversed'\n    outcome_source \u2014 'agent_callback'\
+        \ | 'reviewer'  (default: 'agent_callback')\n    notes         \u2014 optional\
+        \ free-text"
+      operationId: post_rlhf_submit_outcome_feedback_api_rlhf_outcome_feedback
+      tags:
+      - RLHF
+      responses:
+        '200':
+          description: Success
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '500':
+          description: Server error
+      x-source:
+        file: /Users/edwardc/Projects/amp-backend/app.py
+        function: rlhf_submit_outcome_feedback
+        line: 19198
+      x-audience: public
+      security:
+      - ApiKeyAuth: []
+      - SessionToken: []
   /api/rlhf/policy:
     get:
       summary: RLHF Get Policy
-      description: "Retrieve the active RLHF policy for an agent.\n\nReturns the policy JSON, version, feature schema version, current autonomy\nstage, and RLHF status flags."
+      description: 'Retrieve the active RLHF policy for an agent.
+
+
+        Returns the policy JSON, version, feature schema version, current autonomy
+
+        stage, and RLHF status flags.'
       operationId: get_rlhf_get_policy_api_rlhf_policy
       tags:
-        - RLHF
+      - RLHF
       responses:
-        200:
+        '200':
           description: Success
-        400:
+        '400':
           description: Bad request
-        401:
+        '401':
           description: Unauthorized
-        500:
+        '500':
           description: Server error
       x-source:
         file: /Users/edwardc/Projects/amp-backend/app.py
         function: rlhf_get_policy
-        line: 12013
+        line: 18411
       x-audience: public
       security:
-        -
-          ApiKeyAuth:
-            []
-        -
-          SessionToken:
-            []
+      - ApiKeyAuth: []
+      - SessionToken: []
+  /api/rlhf/policy/evaluate:
+    post:
+      summary: RLHF Evaluate Policy
+      description: Evaluate active policy criteria for diagnostics; runtime decision
+        is policy-type specific.
+      operationId: post_rlhf_evaluate_policy_api_rlhf_policy_evaluate
+      tags:
+      - RLHF
+      responses:
+        '200':
+          description: Success
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '500':
+          description: Server error
+      x-source:
+        file: /Users/edwardc/Projects/amp-backend/app.py
+        function: rlhf_evaluate_policy
+        line: 18475
+      x-audience: public
+      security:
+      - ApiKeyAuth: []
+      - SessionToken: []
   /api/rlhf/policy/save:
     post:
       summary: RLHF Save Policy
-      description: "Save a new RLHF policy JSON for an agent.\n\nValidates against the policy schema, stamps the version, and persists via\n_save_rlhf_policy. Returns the saved version and policy."
+      description: 'Save a new RLHF policy JSON for an agent.
+
+
+        Validates against the policy schema, stamps the version, and persists via
+
+        _save_rlhf_policy. Returns the saved version and policy.'
       operationId: post_rlhf_save_policy_api_rlhf_policy_save
       tags:
-        - RLHF
+      - RLHF
       responses:
-        200:
+        '200':
           description: Success
-        400:
+        '400':
           description: Bad request
-        401:
+        '401':
           description: Unauthorized
-        500:
+        '500':
           description: Server error
       x-source:
         file: /Users/edwardc/Projects/amp-backend/app.py
         function: rlhf_save_policy
-        line: 12077
+        line: 18574
       x-audience: public
       security:
-        -
-          ApiKeyAuth:
-            []
-        -
-          SessionToken:
-            []
+      - ApiKeyAuth: []
+      - SessionToken: []
+  /api/session/validate:
+    get:
+      summary: Session Validate
+      description: 'Lightweight endpoint for the frontend to check whether the current
+        session
+
+        is still valid. Returns 200 if authenticated, 401 if not. Used by the SSE
+
+        reconnect logic to distinguish session expiry from network errors.'
+      operationId: get_session_validate_api_session_validate
+      tags:
+      - Uncategorized
+      responses:
+        '200':
+          description: Success
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '500':
+          description: Server error
+      x-source:
+        file: /Users/edwardc/Projects/amp-backend/app.py
+        function: session_validate
+        line: 5215
+      x-audience: public
+      security:
+      - ApiKeyAuth: []
+      - SessionToken: []
+  /api/usage/me/daily:
+    get:
+      summary: Usage Me Daily
+      description: Current user's daily call counts for the last N days.
+      operationId: get_usage_me_daily_api_usage_me_daily
+      tags:
+      - Uncategorized
+      responses:
+        '200':
+          description: Success
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '500':
+          description: Server error
+      x-source:
+        file: /Users/edwardc/Projects/amp-backend/app.py
+        function: usage_me_daily
+        line: 22491
+      x-audience: public
+      security:
+      - ApiKeyAuth: []
+      - SessionToken: []
+  /api/usage/me/summary:
+    get:
+      summary: Usage Me Summary
+      description: Current user's usage summary for their org's current billing period.
+      operationId: get_usage_me_summary_api_usage_me_summary
+      tags:
+      - Uncategorized
+      responses:
+        '200':
+          description: Success
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '500':
+          description: Server error
+      x-source:
+        file: /Users/edwardc/Projects/amp-backend/app.py
+        function: usage_me_summary
+        line: 22441
+      x-audience: public
+      security:
+      - ApiKeyAuth: []
+      - SessionToken: []
+  /api/usage/org/daily:
+    get:
+      summary: Usage Org Daily
+      description: Org daily usage for the last N days. Admin+ only.
+      operationId: get_usage_org_daily_api_usage_org_daily
+      tags:
+      - Uncategorized
+      responses:
+        '200':
+          description: Success
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '500':
+          description: Server error
+      x-source:
+        file: /Users/edwardc/Projects/amp-backend/app.py
+        function: usage_org_daily
+        line: 22555
+      x-audience: public
+      security:
+      - ApiKeyAuth: []
+      - SessionToken: []
+  /api/usage/org/summary:
+    get:
+      summary: Usage Org Summary
+      description: Org aggregate usage summary for the current billing period. Admin+
+        only.
+      operationId: get_usage_org_summary_api_usage_org_summary
+      tags:
+      - Uncategorized
+      responses:
+        '200':
+          description: Success
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '500':
+          description: Server error
+      x-source:
+        file: /Users/edwardc/Projects/amp-backend/app.py
+        function: usage_org_summary
+        line: 22506
+      x-audience: public
+      security:
+      - ApiKeyAuth: []
+      - SessionToken: []
+  /api/usage/org/users:
+    get:
+      summary: Usage Org Users
+      description: Per-user call breakdown for the org. Admin+ only.
+      operationId: get_usage_org_users_api_usage_org_users
+      tags:
+      - Uncategorized
+      responses:
+        '200':
+          description: Success
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '500':
+          description: Server error
+      x-source:
+        file: /Users/edwardc/Projects/amp-backend/app.py
+        function: usage_org_users
+        line: 22584
+      x-audience: public
+      security:
+      - ApiKeyAuth: []
+      - SessionToken: []
   /api/workitems:
     post:
       summary: Create Workitem
-      description: Create a workitem; remove prior completed items with the same instance_id and username.
+      description: Create a workitem; remove prior completed items with the same instance_id
+        and username.
       operationId: post_create_workitem_api_workitems
       tags:
-        - Workitems
-        - HITL
+      - Workitems
+      - HITL
       responses:
-        200:
+        '200':
           description: Success
-        400:
+        '400':
           description: Bad request
-        401:
+        '401':
           description: Unauthorized
-        500:
+        '500':
           description: Server error
       x-source:
         file: /Users/edwardc/Projects/amp-backend/app.py
         function: create_workitem
-        line: 6969
+        line: 11006
       x-audience: public
       security:
-        -
-          ApiKeyAuth:
-            []
-        -
-          SessionToken:
-            []
+      - ApiKeyAuth: []
+      - SessionToken: []
     get:
       summary: Get Workitems
       description: Get workitems for a specific user.
       operationId: get_get_workitems_api_workitems
       tags:
-        - Workitems
-        - HITL
+      - Workitems
+      - HITL
       responses:
-        200:
+        '200':
           description: Success
-        400:
+        '400':
           description: Bad request
-        401:
+        '401':
           description: Unauthorized
-        500:
+        '500':
           description: Server error
       x-source:
         file: /Users/edwardc/Projects/amp-backend/app.py
         function: get_workitems
-        line: 6631
+        line: 10463
       x-audience: public
       security:
-        -
-          ApiKeyAuth:
-            []
-        -
-          SessionToken:
-            []
+      - ApiKeyAuth: []
+      - SessionToken: []
   /api/workitems/{workitem_id}:
     delete:
       summary: Delete Workitem
       description: Delete a specific workitem.
       operationId: delete_delete_workitem_api_workitems_workitem_id
       tags:
-        - Workitems
-        - HITL
+      - Workitems
+      - HITL
       responses:
-        200:
+        '200':
           description: Success
-        400:
+        '400':
           description: Bad request
-        401:
+        '401':
           description: Unauthorized
-        500:
+        '500':
           description: Server error
       x-source:
         file: /Users/edwardc/Projects/amp-backend/app.py
         function: delete_workitem
-        line: 7933
+        line: 12738
       x-audience: public
       parameters:
-        -
-          name: workitem_id
-          in: path
-          required: true
-          schema:
-            type: string
+      - name: workitem_id
+        in: path
+        required: true
+        schema:
+          type: string
       security:
-        -
-          ApiKeyAuth:
-            []
-        -
-          SessionToken:
-            []
+      - ApiKeyAuth: []
+      - SessionToken: []
   /api/workitems/{workitem_id}/status:
     put:
       summary: Update Workitem Status
-      description: Update the status of a specific workitem.
+      description: 'Update the status of a specific workitem.
+
+
+        OSS-004: authorization is resolved before any state mutation, completion
+
+        is an atomic compare-and-set, and the decision commits together with its
+
+        callback outbox record. Callbacks are dispatched only after commit and
+
+        their real outcome is recorded on the delivery record.'
       operationId: put_update_workitem_status_api_workitems_workitem_id_status
       tags:
-        - Workitems
-        - HITL
+      - Workitems
+      - HITL
       responses:
-        200:
+        '200':
           description: Success
-        400:
+        '400':
           description: Bad request
-        401:
+        '401':
           description: Unauthorized
-        500:
+        '500':
           description: Server error
       x-source:
         file: /Users/edwardc/Projects/amp-backend/app.py
         function: update_workitem_status
-        line: 7730
+        line: 12268
       x-audience: public
       parameters:
-        -
-          name: workitem_id
-          in: path
-          required: true
-          schema:
-            type: string
+      - name: workitem_id
+        in: path
+        required: true
+        schema:
+          type: string
       security:
-        -
-          ApiKeyAuth:
-            []
-        -
-          SessionToken:
-            []
+      - ApiKeyAuth: []
+      - SessionToken: []
 components:
   securitySchemes:
     ApiKeyAuth:
